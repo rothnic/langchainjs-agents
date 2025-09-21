@@ -44,6 +44,6 @@ export const config = {
   },
   github: {
     token: env.GITHUB_TOKEN,
-    modelsBaseUrl: 'https://models.inference.ai.azure.com',
+    modelsBaseUrl: 'https://models.github.ai/inference',
   },
 } as const;

@@ -1,4 +1,4 @@
-import { ChatOpenAI } from '@langchain/openai';
+import { ChatOpenAI } from "@langchain/openai";
 import { config } from './environment.js';
 
 /**
@@ -8,6 +8,7 @@ export class LLMFactory {
   /**
    * Create an LLM instance based on the configured provider
    */
+
   static createLLM(options?: {
     model?: string;
     temperature?: number;
@@ -30,8 +31,9 @@ export class LLMFactory {
     temperature?: number,
     maxTokens?: number
   ): ChatOpenAI {
-    const modelName = model || 'gpt-4o-mini';
+    const modelName = model || 'openai/gpt-4o-mini';
     const apiKey = config.github.token || process.env.GITHUB_TOKEN;
+    const baseURL = config.github.modelsBaseUrl || 'https://models.github.ai/inference';
 
     if (!apiKey) {
       throw new Error(
@@ -43,10 +45,14 @@ export class LLMFactory {
       model: modelName,
       temperature,
       maxTokens,
+      apiKey,
       configuration: {
-        baseURL: config.github.modelsBaseUrl,
+        baseURL,
         apiKey,
-      },
+        defaultHeaders: {
+          'User-Agent': 'langchainjs-agents/ci'
+        }
+      }
     });
   }
 
@@ -71,7 +77,7 @@ export class LLMFactory {
       model: modelName,
       temperature,
       maxTokens,
-      openAIApiKey: apiKey,
+      apiKey,
     });
   }
 
@@ -81,7 +87,7 @@ export class LLMFactory {
   static createTestLLM(): ChatOpenAI {
     // For tests, always prefer GitHub Models if available
     if (config.github.token || process.env.GITHUB_TOKEN) {
-      return this.createGitHubModelsLLM('gpt-4o-mini', 0.1);
+      return this.createGitHubModelsLLM('openai/gpt-4o-mini', 0.1);
     }
 
     // Fallback to OpenAI for backward compatibility

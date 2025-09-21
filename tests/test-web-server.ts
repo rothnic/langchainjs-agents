@@ -115,7 +115,7 @@ export class TestWebServer {
     try {
       const filePath = join(__dirname, 'fixtures', 'web-pages', filename);
       const content = await readFile(filePath, 'utf-8');
-      
+
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.statusCode = 200;
       res.end(content);

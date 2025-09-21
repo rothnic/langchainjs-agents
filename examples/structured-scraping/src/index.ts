@@ -53,7 +53,7 @@ async function main() {
 
     if (result.headings.length > 0) {
       console.log('📑 HEADINGS:');
-      result.headings.forEach((heading, index) => {
+      result.headings.forEach((heading) => {
         console.log(`  ${'#'.repeat(heading.level)} ${heading.text}`);
       });
       console.log('');

@@ -2,7 +2,11 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { StructuredScrapingAgent } from '../src/agent.js';
 import { LLMFactory } from '../../../config/llm-factory.js';
 import { scrapedDataSchema } from '../src/schemas.js';
-import { TestWebServer, getTestServer, cleanupTestServer } from '../../../tests/test-web-server.js';
+import {
+  TestWebServer,
+  getTestServer,
+  cleanupTestServer,
+} from '../../../tests/test-web-server.js';
 import { config } from '../../../config/environment.js';
 
 // Only run integration tests when real APIs are enabled
@@ -15,13 +19,16 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
   beforeAll(async () => {
     // Start test web server
     testServer = await getTestServer();
-    
+
     // Create agent with real LLM (GitHub Models)
     try {
       const llm = LLMFactory.createTestLLM();
       agent = new StructuredScrapingAgent(llm);
     } catch (error) {
-      console.warn('Skipping integration tests - no LLM provider configured:', error.message);
+      console.warn(
+        'Skipping integration tests - no LLM provider configured:',
+        error instanceof Error ? error.message : String(error)
+      );
       return;
     }
   });
@@ -33,33 +40,33 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
   describe('Real Web Scraping', () => {
     it('should scrape and analyze a blog post page', async () => {
       const url = testServer.getPageUrl('blog-post');
-      
+
       const result = await agent.scrape(url, {
         timeout: 15000,
       });
 
       // Validate schema compliance
       expect(scrapedDataSchema.safeParse(result).success).toBe(true);
-      
+
       // Validate extracted content
       expect(result.title).toContain('Advanced Web Scraping Techniques');
       expect(result.headings).toHaveLength(6); // h1, h2, h3 elements
       expect(result.headings[0]).toMatchObject({
         level: 1,
-        text: 'Advanced Web Scraping Techniques'
+        text: 'Advanced Web Scraping Techniques',
       });
-      
+
       // Should extract different content types
-      const contentTypes = result.content.map(c => c.type);
+      const contentTypes = result.content.map((c) => c.type);
       expect(contentTypes).toContain('paragraph');
       expect(contentTypes).toContain('list');
       expect(contentTypes).toContain('quote');
       expect(contentTypes).toContain('code');
-      
+
       // Should identify external vs internal links
-      expect(result.links.some(link => link.isExternal)).toBe(true);
-      expect(result.links.some(link => !link.isExternal)).toBe(true);
-      
+      expect(result.links.some((link) => link.isExternal)).toBe(true);
+      expect(result.links.some((link) => !link.isExternal)).toBe(true);
+
       // Should extract metadata
       expect(result.metadata.url).toBe(url);
       expect(result.metadata.wordCount).toBeGreaterThan(100);
@@ -69,33 +76,40 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
 
     it('should scrape and analyze an e-commerce catalog', async () => {
       const url = testServer.getPageUrl('ecommerce');
-      
+
       const result = await agent.scrape(url);
 
       // Validate schema compliance
       expect(scrapedDataSchema.safeParse(result).success).toBe(true);
-      
+
       // Should extract product information
       expect(result.title).toContain('Tech Products Catalog');
-      expect(result.content.some(c => 
-        c.text.includes('UltraBook Pro') || c.text.includes('SmartPhone Alpha')
-      )).toBe(true);
-      
+      expect(
+        result.content.some(
+          (c) =>
+            c.text.includes('UltraBook Pro') ||
+            c.text.includes('SmartPhone Alpha')
+        )
+      ).toBe(true);
+
       // Should have structured headings
-      const sectionHeadings = result.headings.filter(h => 
-        h.text.includes('Laptops') || h.text.includes('Smartphones') || h.text.includes('Accessories')
+      const sectionHeadings = result.headings.filter(
+        (h) =>
+          h.text.includes('Laptops') ||
+          h.text.includes('Smartphones') ||
+          h.text.includes('Accessories')
       );
       expect(sectionHeadings.length).toBeGreaterThanOrEqual(3);
     });
 
     it('should handle simple pages correctly', async () => {
       const url = testServer.getPageUrl('simple');
-      
+
       const result = await agent.scrape(url);
 
       // Validate schema compliance
       expect(scrapedDataSchema.safeParse(result).success).toBe(true);
-      
+
       expect(result.title).toBe('Simple Test Page');
       expect(result.headings).toHaveLength(3); // h1 + 2 h2 elements
       expect(result.content.length).toBeGreaterThan(3);
@@ -103,7 +117,7 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
 
     it('should handle network timeouts gracefully', async () => {
       const url = testServer.getPageUrl('delay');
-      
+
       await expect(agent.scrape(url, { timeout: 1000 })).rejects.toMatchObject({
         type: 'timeout',
         url,
@@ -112,7 +126,7 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
 
     it('should categorize server errors correctly', async () => {
       const url = testServer.getPageUrl('error');
-      
+
       await expect(agent.scrape(url)).rejects.toMatchObject({
         type: 'unknown', // 500 errors are categorized as unknown
         url,
@@ -123,15 +137,19 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
   describe('LLM Enhancement Integration', () => {
     it('should successfully enhance content with real LLM', async () => {
       const url = testServer.getPageUrl('blog-post');
-      
+
       const result = await agent.scrape(url);
 
       // The LLM should have enhanced the metadata
       expect(result.metadata).toBeDefined();
       expect(result.metadata.language).toBeDefined();
-      
+
       // Content should be properly categorized
-      expect(result.content.every(c => ['paragraph', 'list', 'code', 'quote'].includes(c.type))).toBe(true);
+      expect(
+        result.content.every((c) =>
+          ['paragraph', 'list', 'code', 'quote'].includes(c.type)
+        )
+      ).toBe(true);
     });
 
     it('should handle LLM failures gracefully', async () => {
@@ -141,9 +159,9 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
         temperature: 0.1,
       });
       const faultyAgent = new StructuredScrapingAgent(invalidLLM);
-      
+
       const url = testServer.getPageUrl('simple');
-      
+
       // Should still return valid data even if LLM enhancement fails
       const result = await faultyAgent.scrape(url);
       expect(scrapedDataSchema.safeParse(result).success).toBe(true);
@@ -158,11 +176,11 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
         testServer.getPageUrl('ecommerce'),
       ];
 
-      const promises = urls.map(url => agent.scrape(url));
+      const promises = urls.map((url) => agent.scrape(url));
       const results = await Promise.all(promises);
 
       expect(results).toHaveLength(3);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(scrapedDataSchema.safeParse(result).success).toBe(true);
       });
     });
@@ -170,9 +188,9 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
     it('should complete scraping within reasonable time limits', async () => {
       const url = testServer.getPageUrl('blog-post');
       const startTime = Date.now();
-      
+
       await agent.scrape(url);
-      
+
       const duration = Date.now() - startTime;
       expect(duration).toBeLessThan(30000); // Should complete within 30 seconds
     });

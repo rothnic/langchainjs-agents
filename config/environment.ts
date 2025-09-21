@@ -20,9 +20,7 @@ const envSchema = z.object({
     .string()
     .transform((val) => val === 'true')
     .default('false'),
-  LLM_PROVIDER: z
-    .enum(['openai', 'github-models'])
-    .default('github-models'),
+  LLM_PROVIDER: z.enum(['openai', 'github-models']).default('github-models'),
 });
 
 export type Environment = z.infer<typeof envSchema>;

@@ -37,9 +37,10 @@
     "scripts/**/*",
     "tests/**/*",
     "mocks/**/*",
-    "config/**/*"
+    "config/**/*",
+    "vitest.config.ts"
   ],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
+  "exclude": ["node_modules", "dist"],
   "ts-node": {
     "esm": true
   }

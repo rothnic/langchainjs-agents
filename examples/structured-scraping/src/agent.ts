@@ -27,10 +27,12 @@ export class StructuredScrapingAgent {
   };
 
   constructor(llmModel?: ChatOpenAI) {
-    this.llm = llmModel || LLMFactory.createLLM({
-      model: 'gpt-4o-mini',
-      temperature: 0.1,
-    });
+    this.llm =
+      llmModel ||
+      LLMFactory.createLLM({
+        model: 'gpt-4o-mini',
+        temperature: 0.1,
+      });
   }
 
   /**
@@ -215,7 +217,7 @@ Please return enhanced structured data with improved metadata, better content ca
     ];
 
     try {
-      const response = await this.llm.invoke(messages);
+      await this.llm.invoke(messages);
 
       // For this example, we'll use the basic data and add some LLM-enhanced metadata
       // In a real implementation, you'd parse the LLM response more sophisticatedly

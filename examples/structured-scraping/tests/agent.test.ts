@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { StructuredScrapingAgent } from '../src/agent.js';
-import {
-  createMockLLM,
-  setupHttpMocks,
-  mockWebResponses,
-} from '../../../mocks/llm-mocks.js';
+import { createMockLLM } from '../../../mocks/llm-mocks.js';
 import { TestDataFactory } from '../../../mocks/test-fixtures.js';
 import { scrapedDataSchema } from '../src/schemas.js';
 import axios from 'axios';

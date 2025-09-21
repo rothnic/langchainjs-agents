@@ -1,5 +1,4 @@
 import { vi } from 'vitest';
-import type { ChatOpenAI } from '@langchain/openai';
 import type { BaseMessage } from '@langchain/core/messages';
 
 /**
@@ -13,7 +12,7 @@ export class MockChatOpenAI {
     this.responses = responses;
   }
 
-  async invoke(messages: BaseMessage[]): Promise<{ content: string }> {
+  async invoke(_messages: BaseMessage[]): Promise<{ content: string }> {
     const response = this.responses[this.responseIndex % this.responses.length];
     this.responseIndex++;
     return { content: response };
@@ -83,7 +82,7 @@ export const setupHttpMocks = () => {
   });
 
   // Add the get method for axios.get calls
-  axiosMock.get = vi.fn().mockImplementation((url: string, config?: any) => {
+  axiosMock.get = vi.fn().mockImplementation((url: string, _config?: any) => {
     const mockResponse = mockWebResponses[url as keyof typeof mockWebResponses];
 
     if (mockResponse) {

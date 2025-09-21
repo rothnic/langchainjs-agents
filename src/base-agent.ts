@@ -47,7 +47,7 @@ export abstract class BaseAgent {
   /**
    * Validate input parameters (override in subclasses)
    */
-  protected validateInput(input: any): void {
+  protected validateInput(_input: unknown): void {
     // Default implementation - override in subclasses
   }
 

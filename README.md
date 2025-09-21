@@ -170,10 +170,17 @@ npm run clean            # Clean build artifacts
 
 ```bash
 npm test                 # Run all tests
+npm run test:unit        # Fast unit tests only
+npm run test:integration # Integration tests with real APIs
 npm run test:watch       # Watch mode
 npm run test:ui          # Visual test UI
 npm run test:run         # Single run with coverage
 ```
+
+**Testing Strategy:**
+- **Unit tests**: Run on every commit (fast, mocked)
+- **Integration tests**: Require approval, use GitHub Models
+- **Real web pages**: Built-in test server for scraping validation
 
 ### Code Quality
 
@@ -197,7 +204,12 @@ npm run dev:example      # Run scraping example
 ### Environment Variables
 
 ```bash
-# Required
+# LLM Provider (Recommended: GitHub Models)
+LLM_PROVIDER=github-models
+GITHUB_TOKEN=your_github_token_here
+
+# Alternative: OpenAI
+LLM_PROVIDER=openai
 OPENAI_API_KEY=your_openai_api_key_here
 
 # Optional
@@ -206,6 +218,12 @@ LANGCHAIN_TRACING_V2=true
 USE_REAL_APIS=false      # Toggle for testing
 NODE_ENV=development
 ```
+
+**Why GitHub Models?**
+- ✅ **Free**: No costs for Pro account holders
+- ✅ **Integrated**: Automatic access in CI/CD
+- ✅ **Compatible**: OpenAI-compatible API
+- ✅ **No secrets**: Uses existing GitHub token
 
 ### TypeScript Configuration
 

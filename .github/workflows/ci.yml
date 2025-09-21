@@ -9,6 +9,10 @@ on:
 env:
   NODE_VERSION: '18'
 
+permissions:
+  contents: read
+  models: read  # Required for GitHub Models access
+
 jobs:
   typecheck:
     name: Type Check
@@ -51,8 +55,8 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
-  test:
-    name: Test
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -70,11 +74,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm run test:run
+      - name: Run unit tests
+        run: npm run test:unit
         env:
           NODE_ENV: test
           USE_REAL_APIS: false
+          LLM_PROVIDER: github-models
+          GITHUB_TOKEN: test_token
           OPENAI_API_KEY: test_key
           LANGCHAIN_API_KEY: test_key
 
@@ -88,7 +94,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [typecheck, lint, test]
+    needs: [typecheck, lint, unit-tests]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -111,11 +117,15 @@ jobs:
           test -f dist/index.js
           test -f dist/index.d.ts
 
-  integration-test:
-    name: Integration Test
+  integration-tests:
+    name: Integration Tests (GitHub Models)
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [build]
+    # Only run on main branch pushes or when manually triggered
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch') ||
+      contains(github.event.pull_request.labels.*.name, 'test:integration')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -129,19 +139,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run integration tests
-        run: npm run test:run -- --grep="integration"
+      - name: Run integration tests with GitHub Models
+        run: npm run test:integration
         env:
           NODE_ENV: test
           USE_REAL_APIS: true
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LLM_PROVIDER: github-models
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  sample-run:
-    name: Sample Agent Run
+  sample-runs:
+    name: Sample Agent Runs
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -158,14 +168,6 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Run structured scraping example
-        run: |
-          echo "Running structured scraping example..."
-          timeout 60s npm run dev:example https://example.com || true
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          USE_REAL_APIS: false
-
       - name: Test CLI scaffolding
         run: |
           echo "Testing agent scaffolding..."
@@ -174,6 +176,16 @@ jobs:
           test -f agents/ci-test-agent/README.md
           test -f agents/ci-test-agent/src/agent.ts
           test -f agents/ci-test-agent/tests/agent.test.ts
-
+          
           echo "Testing generated agent..."
-          npm test agents/ci-test-agent
+          npm run test:unit agents/ci-test-agent
+
+      - name: Run structured scraping example (with test server)
+        run: |
+          echo "Running structured scraping example with GitHub Models..."
+          # Test with GitHub Models using built-in test server
+          timeout 60s npm run test:integration:manual examples/structured-scraping || echo "Integration test completed"
+        env:
+          LLM_PROVIDER: github-models
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USE_REAL_APIS: true

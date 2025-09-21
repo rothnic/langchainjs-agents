@@ -10,7 +10,7 @@ import {
   type ScrapingConfig,
   type ScrapingError,
 } from './schemas.js';
-import { config } from '../../../config/environment.js';
+import { LLMFactory } from '../../../config/llm-factory.js';
 
 /**
  * Structured Web Scraping Agent
@@ -27,13 +27,10 @@ export class StructuredScrapingAgent {
   };
 
   constructor(llmModel?: ChatOpenAI) {
-    this.llm =
-      llmModel ||
-      new ChatOpenAI({
-        modelName: 'gpt-3.5-turbo',
-        temperature: 0.1,
-        openAIApiKey: config.openai.apiKey,
-      });
+    this.llm = llmModel || LLMFactory.createLLM({
+      model: 'gpt-4o-mini',
+      temperature: 0.1,
+    });
   }
 
   /**

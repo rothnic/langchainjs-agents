@@ -18,7 +18,7 @@ vi.mock('axios', () => ({
 
 const mockedAxios = axios as any;
 
-describe('StructuredScrapingAgent', () => {
+describe('StructuredScrapingAgent - Unit Tests', () => {
   let agent: StructuredScrapingAgent;
   let mockLLM: any;
 
@@ -29,10 +29,19 @@ describe('StructuredScrapingAgent', () => {
     // Setup mock LLM
     mockLLM = createMockLLM(['Enhanced content analysis complete']);
 
-    // Setup axios mock to return example.com data
+    // Setup axios mock to return test data
     mockedAxios.get.mockResolvedValue({
       status: 200,
-      data: mockWebResponses['https://example.com'].data,
+      data: `
+        <html>
+          <head><title>Test Page</title></head>
+          <body>
+            <h1>Main Title</h1>
+            <p>This is a test paragraph.</p>
+            <a href="https://example.com">External Link</a>
+          </body>
+        </html>
+      `,
     });
 
     // Create agent with mock LLM

@@ -178,6 +178,7 @@ npm run test:run         # Single run with coverage
 ```
 
 **Testing Strategy:**
+
 - **Unit tests**: Run on every commit (fast, mocked)
 - **Integration tests**: Require approval, use GitHub Models
 - **Real web pages**: Built-in test server for scraping validation
@@ -220,6 +221,7 @@ NODE_ENV=development
 ```
 
 **Why GitHub Models?**
+
 - ✅ **Free**: No costs for Pro account holders
 - ✅ **Integrated**: Automatic access in CI/CD
 - ✅ **Compatible**: OpenAI-compatible API

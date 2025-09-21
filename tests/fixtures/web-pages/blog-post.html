@@ -1,100 +1,136 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A sample blog post for testing web scraping agents">
-    <meta name="author" content="Test Author">
-    <meta property="article:published_time" content="2024-01-15T10:30:00Z">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A sample blog post for testing web scraping agents"
+    />
+    <meta name="author" content="Test Author" />
+    <meta property="article:published_time" content="2024-01-15T10:30:00Z" />
     <title>Sample Blog Post: Advanced Web Scraping Techniques</title>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <nav>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
+      <nav>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
     </header>
 
     <main>
-        <article>
-            <h1>Advanced Web Scraping Techniques</h1>
-            
-            <div class="meta">
-                <p>Published on <time datetime="2024-01-15">January 15, 2024</time></p>
-                <p>By <span class="author">Test Author</span></p>
-            </div>
+      <article>
+        <h1>Advanced Web Scraping Techniques</h1>
 
-            <h2>Introduction</h2>
-            <p>Web scraping has become an essential skill for data collection and analysis. This article explores advanced techniques for extracting structured data from web pages.</p>
+        <div class="meta">
+          <p>
+            Published on <time datetime="2024-01-15">January 15, 2024</time>
+          </p>
+          <p>By <span class="author">Test Author</span></p>
+        </div>
 
-            <h2>Key Concepts</h2>
-            <p>Understanding the following concepts is crucial for effective web scraping:</p>
-            
-            <ul>
-                <li>DOM structure and navigation</li>
-                <li>CSS selectors and XPath expressions</li>
-                <li>Handling JavaScript-rendered content</li>
-                <li>Rate limiting and ethical considerations</li>
-            </ul>
+        <h2>Introduction</h2>
+        <p>
+          Web scraping has become an essential skill for data collection and
+          analysis. This article explores advanced techniques for extracting
+          structured data from web pages.
+        </p>
 
-            <h3>DOM Structure</h3>
-            <p>The Document Object Model (DOM) represents the structure of HTML documents. Effective scraping requires understanding how to navigate this tree-like structure.</p>
+        <h2>Key Concepts</h2>
+        <p>
+          Understanding the following concepts is crucial for effective web
+          scraping:
+        </p>
 
-            <blockquote>
-                "The key to successful web scraping is understanding the structure of the data you're trying to extract."
-                <cite>- Web Scraping Expert</cite>
-            </blockquote>
+        <ul>
+          <li>DOM structure and navigation</li>
+          <li>CSS selectors and XPath expressions</li>
+          <li>Handling JavaScript-rendered content</li>
+          <li>Rate limiting and ethical considerations</li>
+        </ul>
 
-            <h3>Code Examples</h3>
-            <p>Here's a simple example of CSS selector usage:</p>
-            
-            <pre><code>
+        <h3>DOM Structure</h3>
+        <p>
+          The Document Object Model (DOM) represents the structure of HTML
+          documents. Effective scraping requires understanding how to navigate
+          this tree-like structure.
+        </p>
+
+        <blockquote>
+          "The key to successful web scraping is understanding the structure of
+          the data you're trying to extract."
+          <cite>- Web Scraping Expert</cite>
+        </blockquote>
+
+        <h3>Code Examples</h3>
+        <p>Here's a simple example of CSS selector usage:</p>
+
+        <pre><code>
 const titles = document.querySelectorAll('h1, h2, h3');
 titles.forEach(title => console.log(title.textContent));
             </code></pre>
 
-            <h2>Best Practices</h2>
-            <p>When implementing web scraping solutions, consider these best practices:</p>
-            
-            <ol>
-                <li>Respect robots.txt files</li>
-                <li>Implement proper rate limiting</li>
-                <li>Handle errors gracefully</li>
-                <li>Cache responses when appropriate</li>
-                <li>Use appropriate user-agent strings</li>
-            </ol>
+        <h2>Best Practices</h2>
+        <p>
+          When implementing web scraping solutions, consider these best
+          practices:
+        </p>
 
-            <h2>Conclusion</h2>
-            <p>Web scraping is a powerful technique when used responsibly. By following best practices and understanding the underlying technologies, you can build robust data extraction systems.</p>
-        </article>
+        <ol>
+          <li>Respect robots.txt files</li>
+          <li>Implement proper rate limiting</li>
+          <li>Handle errors gracefully</li>
+          <li>Cache responses when appropriate</li>
+          <li>Use appropriate user-agent strings</li>
+        </ol>
 
-        <aside>
-            <h3>Related Articles</h3>
-            <ul>
-                <li><a href="/article/data-analysis">Data Analysis Fundamentals</a></li>
-                <li><a href="/article/api-integration">API Integration Strategies</a></li>
-                <li><a href="/article/automation">Automation Best Practices</a></li>
-            </ul>
-        </aside>
+        <h2>Conclusion</h2>
+        <p>
+          Web scraping is a powerful technique when used responsibly. By
+          following best practices and understanding the underlying
+          technologies, you can build robust data extraction systems.
+        </p>
+      </article>
+
+      <aside>
+        <h3>Related Articles</h3>
+        <ul>
+          <li>
+            <a href="/article/data-analysis">Data Analysis Fundamentals</a>
+          </li>
+          <li>
+            <a href="/article/api-integration">API Integration Strategies</a>
+          </li>
+          <li><a href="/article/automation">Automation Best Practices</a></li>
+        </ul>
+      </aside>
     </main>
 
     <footer>
-        <p>&copy; 2024 Test Blog. All rights reserved.</p>
-        <p>Contact: <a href="mailto:test@example.com">test@example.com</a></p>
+      <p>&copy; 2024 Test Blog. All rights reserved.</p>
+      <p>Contact: <a href="mailto:test@example.com">test@example.com</a></p>
     </footer>
 
     <!-- Test images -->
     <div class="images">
-        <figure>
-            <img src="https://via.placeholder.com/300x200/0066CC/FFFFFF?text=Chart+1" alt="Data visualization chart showing scraping performance">
-            <figcaption>Performance metrics for different scraping approaches</figcaption>
-        </figure>
-        
-        <img src="https://via.placeholder.com/200x150/009966/FFFFFF?text=Diagram" alt="Architecture diagram of a web scraping system">
+      <figure>
+        <img
+          src="https://via.placeholder.com/300x200/0066CC/FFFFFF?text=Chart+1"
+          alt="Data visualization chart showing scraping performance"
+        />
+        <figcaption>
+          Performance metrics for different scraping approaches
+        </figcaption>
+      </figure>
+
+      <img
+        src="https://via.placeholder.com/200x150/009966/FFFFFF?text=Diagram"
+        alt="Architecture diagram of a web scraping system"
+      />
     </div>
-</body>
+  </body>
 </html>

@@ -7,12 +7,14 @@ This document outlines the testing approach for the LangChainJS Agents repositor
 We use a **two-tier testing strategy** that balances development speed with real-world validation:
 
 ### 1. Unit Tests (Fast, Always Run)
+
 - **Purpose**: Validate core logic and edge cases with mocked dependencies
 - **Frequency**: Run on every commit and PR
 - **Speed**: < 30 seconds for full suite
 - **Coverage**: Business logic, error handling, data transformation
 
 ### 2. Integration Tests (Slower, Approval Required)
+
 - **Purpose**: Validate real API interactions and end-to-end workflows
 - **Frequency**: Run on main branch merges or with explicit approval
 - **Speed**: 2-5 minutes depending on API response times
@@ -40,7 +42,7 @@ const llm = LLMFactory.createTestLLM(); // Uses GitHub Models by default
 const llm = LLMFactory.createLLM({
   provider: 'github-models',
   model: 'gpt-4o-mini',
-  temperature: 0.1
+  temperature: 0.1,
 });
 ```
 
@@ -59,6 +61,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 ### Fallback to OpenAI
 
 OpenAI is available as a fallback option for:
+
 - Local development when GitHub token is not available
 - Specific model requirements not available in GitHub Models
 - Legacy compatibility
@@ -86,6 +89,7 @@ project/
 ### Test Categories
 
 #### Unit Tests (`*.test.ts`)
+
 ```typescript
 describe('StructuredScrapingAgent - Unit Tests', () => {
   // Mock all external dependencies
@@ -96,11 +100,11 @@ describe('StructuredScrapingAgent - Unit Tests', () => {
 
   it('should extract headings correctly', async () => {
     // Test with mocked HTML content
-    mockedAxios.get.mockResolvedValue({ 
-      status: 200, 
-      data: '<h1>Test</h1>' 
+    mockedAxios.get.mockResolvedValue({
+      status: 200,
+      data: '<h1>Test</h1>',
     });
-    
+
     const result = await agent.scrape('https://test.com');
     expect(result.headings[0].text).toBe('Test');
   });
@@ -108,10 +112,11 @@ describe('StructuredScrapingAgent - Unit Tests', () => {
 ```
 
 #### Integration Tests (`*.integration.test.ts`)
+
 ```typescript
 describe('StructuredScrapingAgent - Integration Tests', () => {
   let testServer: TestWebServer;
-  
+
   beforeAll(async () => {
     testServer = await getTestServer();
     // Use real LLM (GitHub Models)
@@ -121,7 +126,7 @@ describe('StructuredScrapingAgent - Integration Tests', () => {
   it('should scrape real content with LLM enhancement', async () => {
     const url = testServer.getPageUrl('blog-post');
     const result = await agent.scrape(url);
-    
+
     // Validate real LLM enhanced the content
     expect(result.metadata.language).toBeDefined();
   });
@@ -285,6 +290,7 @@ npm run test:integration agents/my-new-agent
 ### Common Issues
 
 #### GitHub Models Authentication
+
 ```bash
 # Ensure your GitHub token has models:read permission
 # In GitHub Actions, this is automatic
@@ -292,6 +298,7 @@ export GITHUB_TOKEN=your_personal_access_token
 ```
 
 #### Test Server Port Conflicts
+
 ```bash
 # The test server automatically finds available ports
 # If issues persist, check for hanging processes:
@@ -299,6 +306,7 @@ lsof -i :3000
 ```
 
 #### Integration Test Timeouts
+
 ```bash
 # Increase timeout for slower networks
 npm run test:integration -- --timeout=60000

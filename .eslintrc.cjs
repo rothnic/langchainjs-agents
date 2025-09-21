@@ -4,11 +4,7 @@ module.exports = {
     node: true,
     es2022: true,
   },
-  ignorePatterns: [
-    'dist', 
-    'node_modules', 
-    '**/*.d.ts',
-  ],
+  ignorePatterns: ['dist', 'node_modules', '**/*.d.ts'],
   overrides: [
     {
       files: ['*.js', '*.cjs', '*.mjs'],
@@ -44,7 +40,10 @@ module.exports = {
         'prefer-const': 'error',
         'no-var': 'error',
         'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+        '@typescript-eslint/no-unused-vars': [
+          'error',
+          { argsIgnorePattern: '^_' },
+        ],
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'warn',
@@ -69,7 +68,10 @@ module.exports = {
       rules: {
         'prettier/prettier': 'error',
         'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+        '@typescript-eslint/no-unused-vars': [
+          'error',
+          { argsIgnorePattern: '^_' },
+        ],
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off', // Allow any in tests

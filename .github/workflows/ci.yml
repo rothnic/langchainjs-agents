@@ -11,7 +11,7 @@ env:
 
 permissions:
   contents: read
-  models: read  # Required for GitHub Models access
+  models: read # Required for GitHub Models access
 
 jobs:
   typecheck:
@@ -176,7 +176,7 @@ jobs:
           test -f agents/ci-test-agent/README.md
           test -f agents/ci-test-agent/src/agent.ts
           test -f agents/ci-test-agent/tests/agent.test.ts
-          
+
           echo "Testing generated agent..."
           npm run test:unit agents/ci-test-agent
 

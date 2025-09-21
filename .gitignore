@@ -77,3 +77,7 @@ temp/
 
 # MSW
 public/mockServiceWorker.js
+
+# Generated agents from scaffolding (keep structure but ignore generated ones)
+agents/
+!agents/.gitkeep

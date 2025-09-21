@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import type { BaseMessage } from '@langchain/core/messages';
+import type { BaseMessage } from 'langchain';
 
 /**
  * Mock OpenAI Chat Model for testing

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { ChatOpenAI } from "@langchain/openai";
 import { z } from 'zod';
 import {
   scrapedDataSchema,
@@ -30,13 +29,14 @@ export class StructuredScrapingAgent {
     this.llm =
       llmModel ||
       LLMFactory.createLLM({
-        model: 'gpt-4o-mini',
+        model: 'openai/gpt-4o-mini',
         temperature: 0.1,
       });
   }
 
   /**
    * Scrape and structure data from a webpage
+   * (LLM usage updated to use OpenAI SDK)
    */
   async scrape(
     url: string,
@@ -51,6 +51,7 @@ export class StructuredScrapingAgent {
     try {
       // Step 1: Fetch the webpage
       const rawHtml = await this.fetchPage(scrapingConfig);
+      console.log('raw html: ', rawHtml.slice(0, 500)); // Log first 500 characters of HTML
 
       // Step 2: Extract basic structure with Cheerio
       const basicData = this.extractBasicData(rawHtml, scrapingConfig.url);
@@ -212,29 +213,33 @@ Raw text sample: ${basicData.rawText.substring(0, 1000)}...
 Please return enhanced structured data with improved metadata, better content categorization, and any additional insights you can extract.`;
 
     const messages = [
-      new SystemMessage(systemPrompt),
-      new HumanMessage(humanPrompt),
+      { role: "system", content: systemPrompt },
+      { role: "user", content: humanPrompt },
     ];
 
     try {
-      await this.llm.invoke(messages);
-
-      // For this example, we'll use the basic data and add some LLM-enhanced metadata
-      // In a real implementation, you'd parse the LLM response more sophisticatedly
+      console.log('LLM messages: ', messages);
+      const response = await this.llm.invoke(messages);
+      let enhanced: any = {};
+      try {
+        enhanced = response.content ? JSON.parse(response.content) : {};
+      } catch (e) {
+        enhanced = {};
+      }
       return {
-        title: basicData.title,
-        description: basicData.description || undefined,
-        headings: basicData.headings,
-        content: basicData.content,
-        links: basicData.links,
-        images: basicData.images,
+        title: enhanced.title || basicData.title,
+        description: enhanced.description || basicData.description || undefined,
+        headings: enhanced.headings || basicData.headings,
+        content: enhanced.content || basicData.content,
+        links: enhanced.links || basicData.links,
+        images: enhanced.images || basicData.images,
         metadata: {
           url: basicData.url || '',
           scrapedAt: new Date().toISOString(),
           wordCount: basicData.wordCount,
-          language: this.detectLanguage(basicData.rawText),
-          author: this.extractAuthor(rawHtml),
-          publishedAt: this.extractPublishDate(rawHtml),
+          language: enhanced.metadata?.language || this.detectLanguage(basicData.rawText),
+          author: enhanced.metadata?.author || this.extractAuthor(rawHtml),
+          publishedAt: enhanced.metadata?.publishedAt || this.extractPublishDate(rawHtml),
         },
       };
     } catch (error) {

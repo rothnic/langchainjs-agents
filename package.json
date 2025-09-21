@@ -35,29 +35,29 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "langchain": "^0.0.212",
-    "@langchain/core": "^0.1.60",
-    "@langchain/openai": "^0.0.31",
-    "zod": "^3.22.4",
-    "cheerio": "^1.0.0-rc.12",
+    "@langchain/openai": "^1.0.0-alpha.1",
     "axios": "^1.6.2",
-    "dotenv": "^16.3.1"
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.3.1",
+    "langchain": "^1.0.0-alpha.6",
+    "openai": "^5.22.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/node": "^20.10.5",
     "@types/cheerio": "^0.22.35",
+    "@types/node": "^20.10.5",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
+    "@vitest/ui": "^1.0.4",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
-    "prettier": "^3.1.1",
-    "typescript": "^5.3.3",
-    "vitest": "^1.0.4",
-    "@vitest/ui": "^1.0.4",
-    "tsx": "^4.6.2",
     "msw": "^2.0.11",
-    "nock": "^13.4.0"
+    "nock": "^13.4.0",
+    "prettier": "^3.1.1",
+    "tsx": "^4.6.2",
+    "typescript": "^5.9.2",
+    "vitest": "^1.0.4"
   },
   "engines": {
     "node": ">=18.0.0"

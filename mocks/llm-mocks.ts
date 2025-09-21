@@ -68,10 +68,10 @@ export const mockWebResponses = {
  * Setup mocks for HTTP requests
  */
 export const setupHttpMocks = () => {
-  const axiosMock: any = vi.fn();
+  const axiosMock: unknown = vi.fn();
 
-  axiosMock.mockImplementation((config: any) => {
-    const url = typeof config === 'string' ? config : config.url;
+  (axiosMock as any).mockImplementation((config: unknown) => {
+    const url = typeof config === 'string' ? config : (config as any).url;
     const mockResponse = mockWebResponses[url as keyof typeof mockWebResponses];
 
     if (mockResponse) {
@@ -82,7 +82,7 @@ export const setupHttpMocks = () => {
   });
 
   // Add the get method for axios.get calls
-  axiosMock.get = vi.fn().mockImplementation((url: string, _config?: any) => {
+  (axiosMock as any).get = vi.fn().mockImplementation((url: string, _config?: unknown) => {
     const mockResponse = mockWebResponses[url as keyof typeof mockWebResponses];
 
     if (mockResponse) {

@@ -80,7 +80,7 @@ const scrapeTool = tool(
 );
 
 const analyzeTool = tool(
-  async ({ findings }: { findings: any[] }) => {
+  async ({ _findings }: { _findings: unknown[] }) => {
     // Simulate analysis - in practice, this would use an LLM to synthesize findings
     const analysis = {
       summary: 'Based on the research, key findings include...',

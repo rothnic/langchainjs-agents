@@ -140,7 +140,8 @@ export class StructuredScrapingAgent {
     });
 
     // Extract content blocks
-    const content: Array<{ type: string; text: string; metadata?: any }> = [];
+    const content: Array<{ type: string; text: string; metadata?: unknown }> =
+      [];
     $('p, ul, ol, blockquote, pre').each((_, element) => {
       const $el = $(element);
       const text = $el.text().trim();

@@ -215,7 +215,7 @@ describe('StructuredScrapingAgent - Unit Tests', () => {
 
       const result = await agent.scrape('https://example.com');
 
-      const contentTypes = result.content.map((c) => c.type);
+      const contentTypes = result.content.map((c: { type: string }) => c.type);
       expect(contentTypes).toContain('paragraph');
       expect(contentTypes).toContain('list');
       expect(contentTypes).toContain('quote');

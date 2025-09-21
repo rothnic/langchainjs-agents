@@ -1,6 +1,6 @@
 # LangChainJS Agents
 
-A comprehensive TypeScript repository scaffold for building proof-of-concept agents with LangChainJS. This repository provides a structured foundation for rapid agent development with built-in testing, CLI tools, and working examples.
+A comprehensive TypeScript repository scaffold for building proof-of-concept agents with **LangChainJS 1.0**. This repository provides a structured foundation for rapid agent development with built-in testing, CLI tools, and working examples.
 
 ## 🚀 Features
 
@@ -11,6 +11,19 @@ A comprehensive TypeScript repository scaffold for building proof-of-concept age
 - **🔄 CI/CD Ready**: GitHub Actions for typecheck, lint, tests, and sample runs
 - **📚 Rich Documentation**: Guides, patterns, and examples for rapid development
 - **🎯 TypeScript-First**: Full type safety with strict TypeScript configuration
+- **⚡ LangChain 1.0**: Modern patterns with modular imports and best practices
+
+## 🆕 LangChain 1.0 Implementation
+
+This repository showcases **LangChain 1.0 best practices**:
+
+- **Modular Architecture**: Uses `@langchain/openai`, `@langchain/langgraph`
+- **Schema-First Development**: Zod validation for type-safe inputs/outputs
+- **Modern LLM Patterns**: Standardized message formats and provider abstraction
+- **Strategic LangGraph Usage**: Examples for when to use graphs vs simple invocation
+- **Cost-Effective Testing**: GitHub Models integration for free LLM testing
+
+📖 **See [LangChain 1.0 Implementation Guide](./docs/langchain-1.0-implementation.md)** for detailed patterns and migration guidance.
 
 ## 📁 Project Structure
 

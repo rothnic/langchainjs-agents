@@ -1,5 +1,13 @@
 /**
  * Base Agent class providing common functionality for all agents
+ *
+ * LangChain 1.0 Compatible Implementation
+ *
+ * Design Decision: Uses direct LLM invocation patterns suitable for simple,
+ * linear workflows. For complex multi-step workflows with state management,
+ * tool calling, and conditional branching, consider migrating to LangGraph.
+ *
+ * @see docs/langchain-1.0-implementation.md for migration guidance
  */
 export abstract class BaseAgent {
   protected name: string;

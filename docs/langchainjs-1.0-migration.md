@@ -7,6 +7,7 @@ This document highlights the key changes and migration steps when upgrading from
 ## Key Changes in LangChainJS 1.0
 
 ### 1. Modular Imports and Package Structure
+
 - **0.3.x:** Most imports were from the main `langchain` package.
 - **1.0.x:** Imports are now more modular. Many classes and utilities have moved to sub-packages (e.g., `@langchain/core`, `@langchain/openai`, `@langchain/community`).
 - **Migration:**
@@ -18,12 +19,14 @@ This document highlights the key changes and migration steps when upgrading from
     ```
 
 ### 2. Environment Variables and Configuration
+
 - **0.3.x:** Environment variables were often loaded automatically.
 - **1.0.x:** You must explicitly load environment variables (e.g., using `dotenv`).
 - **Migration:**
   - Add `import 'dotenv/config'` at the top of your entry file if using `.env` files.
 
 ### 3. LLM and Chat Model Instantiation
+
 - **0.3.x:** Models were instantiated with direct parameters.
 - **1.0.x:** Models are instantiated with a more consistent and explicit configuration object.
 - **Migration:**
@@ -35,6 +38,7 @@ This document highlights the key changes and migration steps when upgrading from
     ```
 
 ### 4. Core Concepts and API Changes
+
 - **Chains, Tools, Agents:**
   - Many APIs have been refactored for clarity and modularity.
   - Some classes and methods have been renamed or moved.
@@ -42,11 +46,13 @@ This document highlights the key changes and migration steps when upgrading from
   - Review the [Quickstart](https://docs.langchain.com/oss/javascript/langchain/quickstart) and [Overview](https://docs.langchain.com/oss/javascript/langchain/overview) for updated usage patterns.
 
 ### 5. TypeScript Improvements
+
 - **1.0.x:** Improved TypeScript support and stricter types.
 - **Migration:**
   - Update your code to address new type requirements and stricter checks.
 
 ### 6. Deprecations and Removals
+
 - Some legacy APIs and methods have been removed or replaced.
 - **Migration:**
   - Check the [Changelog](https://github.com/langchain-ai/langchainjs/releases) for details on deprecated features.
@@ -54,18 +60,21 @@ This document highlights the key changes and migration steps when upgrading from
 ## Example Migration
 
 **Before (0.3.x):**
+
 ```typescript
-import { ChatOpenAI } from "langchain/chat_models/openai";
+import { ChatOpenAI } from 'langchain/chat_models/openai';
 const model = new ChatOpenAI({ temperature: 0.7 });
 ```
 
 **After (1.0.x):**
+
 ```typescript
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatOpenAI } from '@langchain/openai';
 const model = new ChatOpenAI({ model: 'gpt-3.5-turbo', temperature: 0.7 });
 ```
 
 ## References
+
 - [Installation Guide](https://docs.langchain.com/oss/javascript/langchain/install)
 - [Quickstart](https://docs.langchain.com/oss/javascript/langchain/quickstart)
 - [Overview](https://docs.langchain.com/oss/javascript/langchain/overview)
@@ -73,7 +82,6 @@ const model = new ChatOpenAI({ model: 'gpt-3.5-turbo', temperature: 0.7 });
 ---
 
 **Note:** Always consult the official documentation and changelog for the most up-to-date migration information.
-
 
 # LangChain.js 1.0 - What's Changed from Previous Versions
 
@@ -91,6 +99,7 @@ This document outlines the key differences, breaking changes, and new features i
 ## Overview of Changes
 
 LangChain.js 1.0 represents a **major architectural shift** focused on:
+
 - **Simplified agent creation** with a unified `createAgent` API
 - **Reduced surface area** by removing deprecated/unused modules
 - **Better integration** with LangGraph for advanced workflows
@@ -102,6 +111,7 @@ LangChain.js 1.0 represents a **major architectural shift** focused on:
 ### 1. Node.js Version Requirement
 
 **Before (0.x):**
+
 ```json
 {
   "engines": { "node": ">=18" }
@@ -109,6 +119,7 @@ LangChain.js 1.0 represents a **major architectural shift** focused on:
 ```
 
 **After (1.0):**
+
 ```json
 {
   "engines": { "node": ">=20" }
@@ -122,20 +133,23 @@ LangChain.js 1.0 represents a **major architectural shift** focused on:
 #### Schema Exports Removed
 
 **Before (0.x):**
+
 ```typescript
-import { PromptTemplate } from "langchain/schema/prompt_template";
-import type { AttributeInfo } from "langchain/schema/query_constructor";
+import { PromptTemplate } from 'langchain/schema/prompt_template';
+import type { AttributeInfo } from 'langchain/schema/query_constructor';
 ```
 
 **After (1.0):**
+
 ```typescript
-import { PromptTemplate } from "langchain/prompts";
-import type { AttributeInfo } from "langchain/chains/query_constructor";
+import { PromptTemplate } from 'langchain/prompts';
+import type { AttributeInfo } from 'langchain/chains/query_constructor';
 ```
 
 #### Removed Import Paths
 
 **Removed in 1.0:**
+
 ```typescript
 // These imports no longer work
 import { ... } from "langchain/runnables/remote";
@@ -149,37 +163,41 @@ import { ... } from "langchain/agents"; // Use createAgent instead
 #### Old Agent Pattern (0.x)
 
 ```typescript
-import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
-import { ChatOpenAI } from "@langchain/openai";
-import { pull } from "langchain/hub";
+import { AgentExecutor, createOpenAIFunctionsAgent } from 'langchain/agents';
+import { ChatOpenAI } from '@langchain/openai';
+import { pull } from 'langchain/hub';
 
-const llm = new ChatOpenAI({ model: "gpt-4" });
-const prompt = await pull("hwchase17/openai-functions-agent");
-const tools = [/* tools */];
+const llm = new ChatOpenAI({ model: 'gpt-4' });
+const prompt = await pull('hwchase17/openai-functions-agent');
+const tools = [
+  /* tools */
+];
 
 // Multi-step setup
 const agent = await createOpenAIFunctionsAgent({ llm, tools, prompt });
 const agentExecutor = new AgentExecutor({ agent, tools });
 
 // Complex invocation
-const result = await agentExecutor.invoke({ input: "Hello" });
+const result = await agentExecutor.invoke({ input: 'Hello' });
 ```
 
 #### New Agent Pattern (1.0)
 
 ```typescript
-import { createAgent, HumanMessage } from "langchain";
+import { createAgent, HumanMessage } from 'langchain';
 
 // Single-step setup with model-as-string
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini", // Model as string!
-  tools: [/* tools */],
-  responseFormat: z.object({ answer: z.string() }) // Optional structured output
+  model: 'openai:gpt-4o-mini', // Model as string!
+  tools: [
+    /* tools */
+  ],
+  responseFormat: z.object({ answer: z.string() }), // Optional structured output
 });
 
 // Simplified invocation
 const result = await agent.invoke({
-  messages: [new HumanMessage("Hello")]
+  messages: [new HumanMessage('Hello')],
 });
 
 console.log(result.structuredResponse?.answer); // Type-safe structured response
@@ -188,35 +206,39 @@ console.log(result.structuredResponse?.answer); // Type-safe structured response
 ### 4. Azure OpenAI Package Removed
 
 **Before (0.x):**
+
 ```typescript
-import { AzureChatOpenAI } from "@langchain/azure-openai";
+import { AzureChatOpenAI } from '@langchain/azure-openai';
 ```
 
 **After (1.0):**
+
 ```typescript
-import { AzureChatOpenAI } from "@langchain/openai";
+import { AzureChatOpenAI } from '@langchain/openai';
 
 const model = new AzureChatOpenAI({
-  azureOpenAIApiKey: "your-key",
-  azureOpenAIApiInstanceName: "your-instance",
-  azureOpenAIApiDeploymentName: "your-deployment",
-  azureOpenAIApiVersion: "2023-05-15"
+  azureOpenAIApiKey: 'your-key',
+  azureOpenAIApiInstanceName: 'your-instance',
+  azureOpenAIApiDeploymentName: 'your-deployment',
+  azureOpenAIApiVersion: '2023-05-15',
 });
 ```
 
 ### 5. Callback System Changes
 
 **Before (0.x):**
+
 ```typescript
-import { CallbackManager } from "langchain/callbacks";
-import { ConsoleCallbackHandler } from "langchain/callbacks/handlers/console";
+import { CallbackManager } from 'langchain/callbacks';
+import { ConsoleCallbackHandler } from 'langchain/callbacks/handlers/console';
 
 const callbackManager = CallbackManager.fromHandlers([
-  new ConsoleCallbackHandler()
+  new ConsoleCallbackHandler(),
 ]);
 ```
 
 **After (1.0):**
+
 ```typescript
 // Use LCEL observability and LangSmith instead
 // Or use provider-native hooks
@@ -233,84 +255,91 @@ for await (const chunk of chain.stream(input)) {
 ### 1. Core Exports from Main Package
 
 **1.0 Innovation:**
+
 ```typescript
 // Everything you need from one import
-import { 
-  createAgent, 
-  tool, 
-  HumanMessage, 
+import {
+  createAgent,
+  tool,
+  HumanMessage,
   AIMessage,
-  ToolNode 
-} from "langchain";
+  ToolNode,
+} from 'langchain';
 ```
 
 **Previously (0.x):**
+
 ```typescript
 // Multiple import locations
-import { tool } from "@langchain/core/tools";
-import { HumanMessage } from "@langchain/core/messages";
-import { AgentExecutor } from "langchain/agents";
+import { tool } from '@langchain/core/tools';
+import { HumanMessage } from '@langchain/core/messages';
+import { AgentExecutor } from 'langchain/agents';
 ```
 
 ### 2. Model-as-String Syntax
 
 **New in 1.0:**
+
 ```typescript
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini", // String identifier!
-  model: "anthropic:claude-3-sonnet", // Works with any provider
-  tools: []
+  model: 'openai:gpt-4o-mini', // String identifier!
+  model: 'anthropic:claude-3-sonnet', // Works with any provider
+  tools: [],
 });
 ```
 
 **Previously (0.x):**
+
 ```typescript
-const llm = new ChatOpenAI({ model: "gpt-4" }); // Object instantiation required
+const llm = new ChatOpenAI({ model: 'gpt-4' }); // Object instantiation required
 const agent = await createOpenAIFunctionsAgent({ llm, tools, prompt });
 ```
 
 ### 3. Enhanced ToolNode for Graphs
 
 **New in 1.0:**
+
 ```typescript
-import { ToolNode, tool } from "langchain";
-import { StateGraph } from "@langchain/langgraph";
+import { ToolNode, tool } from 'langchain';
+import { StateGraph } from '@langchain/langgraph';
 
 const tools = [
   tool(async ({ query }) => `Results for: ${query}`, {
-    name: "search",
-    schema: z.object({ query: z.string() })
-  })
+    name: 'search',
+    schema: z.object({ query: z.string() }),
+  }),
 ];
 
 // Tools as graph nodes!
 const toolNode = new ToolNode(tools);
 
 const graph = new StateGraph({ channels: { messages: [] } })
-  .addNode("tools", toolNode)
-  .addEdge("__start__", "tools");
+  .addNode('tools', toolNode)
+  .addEdge('__start__', 'tools');
 ```
 
 ### 4. Advanced Tool Error Handling
 
 **New in 1.0:**
+
 ```typescript
 const toolNode = new ToolNode(tools, {
   handleToolErrors: true, // Default: graceful error handling
   // OR custom error handling:
   handleToolErrors: (error, toolCall) => {
-    if (error.message.includes("network")) {
+    if (error.message.includes('network')) {
       return new ToolMessage({
-        content: "Network error. Please retry.",
-        tool_call_id: toolCall.id!
+        content: 'Network error. Please retry.',
+        tool_call_id: toolCall.id!,
       });
     }
     throw error;
-  }
+  },
 });
 ```
 
 **Previously (0.x):**
+
 ```typescript
 // Limited error handling options
 // Errors would often crash the entire agent
@@ -319,10 +348,11 @@ const toolNode = new ToolNode(tools, {
 ### 5. Standard Content Blocks
 
 **New in 1.0:**
-```typescript
-import { AIMessage } from "@langchain/core/messages";
 
-const message = new AIMessage("Hello world");
+```typescript
+import { AIMessage } from '@langchain/core/messages';
+
+const message = new AIMessage('Hello world');
 
 // Access structured content blocks
 console.log(message.contentBlocks); // Standardized across providers
@@ -337,18 +367,19 @@ console.log(message.contentBlocks); // Standardized across providers
 ### 6. Structured Response Format
 
 **New in 1.0:**
+
 ```typescript
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [],
   responseFormat: z.object({
     answer: z.string(),
-    confidence: z.number()
-  })
+    confidence: z.number(),
+  }),
 });
 
 const result = await agent.invoke({
-  messages: [new HumanMessage("What is 2+2?")]
+  messages: [new HumanMessage('What is 2+2?')],
 });
 
 // Type-safe access to structured response
@@ -359,25 +390,26 @@ console.log(result.structuredResponse.confidence); // 0.95
 ### 7. Enhanced Memory and Persistence
 
 **New in 1.0:**
-```typescript
-import { InMemoryStore } from "@langchain/langgraph";
-import { createAgent } from "langchain";
 
-const store = new InMemoryStore({ 
-  index: { embed: embeddingFunction, dims: 1536 } 
+```typescript
+import { InMemoryStore } from '@langchain/langgraph';
+import { createAgent } from 'langchain';
+
+const store = new InMemoryStore({
+  index: { embed: embeddingFunction, dims: 1536 },
 });
 
 const agent = createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [],
   contextSchema: z.object({ userId: z.string() }),
-  store // Built-in persistence!
+  store, // Built-in persistence!
 });
 
 // Context passed automatically to tools
 await agent.invoke(
-  { messages: [{ role: "user", content: "Remember my name is John" }] },
-  { context: { userId: "user123" } }
+  { messages: [{ role: 'user', content: 'Remember my name is John' }] },
+  { context: { userId: 'user123' } }
 );
 ```
 
@@ -424,15 +456,15 @@ npm uninstall @langchain/azure-openai
 
 ```typescript
 // OLD PATTERN - Delete this
-import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
+import { AgentExecutor, createOpenAIFunctionsAgent } from 'langchain/agents';
 const agent = await createOpenAIFunctionsAgent({ llm, tools, prompt });
 const executor = new AgentExecutor({ agent, tools });
 
 // NEW PATTERN - Use this instead
-import { createAgent } from "langchain";
+import { createAgent } from 'langchain';
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini",
-  tools: tools
+  model: 'openai:gpt-4o-mini',
+  tools: tools,
 });
 ```
 
@@ -442,14 +474,14 @@ const agent = await createAgent({
 
 ```typescript
 // OLD - Remove callbacks
-import { CallbackManager } from "langchain/callbacks";
+import { CallbackManager } from 'langchain/callbacks';
 
 // NEW - Use LCEL and built-in error handling
 const chain = prompt.pipe(model).pipe(outputParser);
 
 // Handle errors in tools
-const toolNode = new ToolNode(tools, { 
-  handleToolErrors: true 
+const toolNode = new ToolNode(tools, {
+  handleToolErrors: true,
 });
 ```
 
@@ -458,6 +490,7 @@ const toolNode = new ToolNode(tools, {
 ### 1. Package Structure Simplification
 
 **Before (0.x):**
+
 ```
 langchain/
 ├── agents/          # Many agent types
@@ -469,6 +502,7 @@ langchain/
 ```
 
 **After (1.0):**
+
 ```
 langchain/
 ├── [createAgent]    # Single agent creator
@@ -481,6 +515,7 @@ langchain/
 ### 2. Dependency Changes
 
 **1.0 Dependencies:**
+
 ```json
 {
   "langchain": "1.0.0",
@@ -494,11 +529,13 @@ langchain/
 ### 3. Built on LangGraph
 
 **Before (0.x):**
+
 - Agents used internal execution logic
 - Limited control over agent workflow
 - Difficult to customize agent behavior
 
 **After (1.0):**
+
 - All agents built on LangGraph foundation
 - Durable execution and streaming by default
 - Human-in-the-loop patterns included
@@ -533,33 +570,37 @@ langchain/
 
 ### Migration Path for Deprecated Features:
 
-| Deprecated Feature | 1.0 Replacement |
-|-------------------|------------------|
-| `AgentExecutor` | `createAgent()` |
-| `CallbackManager` | LCEL observability + LangSmith |
-| Legacy chains | LCEL-based chains |
+| Deprecated Feature   | 1.0 Replacement                          |
+| -------------------- | ---------------------------------------- |
+| `AgentExecutor`      | `createAgent()`                          |
+| `CallbackManager`    | LCEL observability + LangSmith           |
+| Legacy chains        | LCEL-based chains                        |
 | `langchain/schema/*` | Direct imports from appropriate packages |
-| Custom agents | LangGraph-based agents |
+| Custom agents        | LangGraph-based agents                   |
 
 ## Benefits of Migrating to 1.0
 
 ### 1. Simplified Development
+
 - **Single agent API** instead of multiple agent types
 - **Unified imports** from main package
 - **Model-as-string** syntax reduces boilerplate
 
 ### 2. Enhanced Capabilities
+
 - **Built-in streaming** and persistence
 - **Better error handling** with graceful recovery
 - **Structured outputs** with type safety
 - **Advanced memory** management
 
 ### 3. Future-Proof Architecture
+
 - **LangGraph foundation** enables advanced workflows
 - **Standard content blocks** work across all providers
 - **Modular design** allows selective adoption of features
 
 ### 4. Performance Improvements
+
 - **Reduced bundle size** from focused surface area
 - **Better tree-shaking** with cleaner exports
 - **Optimized execution** with LangGraph runtime
@@ -567,62 +608,65 @@ langchain/
 ## Example: Complete Migration
 
 ### Before (0.x):
+
 ```typescript
-import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
-import { ChatOpenAI } from "@langchain/openai";
-import { pull } from "langchain/hub";
-import { tool } from "@langchain/core/tools";
-import { CallbackManager } from "langchain/callbacks";
+import { AgentExecutor, createOpenAIFunctionsAgent } from 'langchain/agents';
+import { ChatOpenAI } from '@langchain/openai';
+import { pull } from 'langchain/hub';
+import { tool } from '@langchain/core/tools';
+import { CallbackManager } from 'langchain/callbacks';
 
-const llm = new ChatOpenAI({ model: "gpt-4", temperature: 0 });
-const prompt = await pull("hwchase17/openai-functions-agent");
+const llm = new ChatOpenAI({ model: 'gpt-4', temperature: 0 });
+const prompt = await pull('hwchase17/openai-functions-agent');
 
-const weatherTool = tool(
-  async ({ city }) => `Weather in ${city}: sunny`,
-  { name: "weather", schema: z.object({ city: z.string() }) }
-);
+const weatherTool = tool(async ({ city }) => `Weather in ${city}: sunny`, {
+  name: 'weather',
+  schema: z.object({ city: z.string() }),
+});
 
 const agent = await createOpenAIFunctionsAgent({
   llm,
   tools: [weatherTool],
-  prompt
+  prompt,
 });
 
 const agentExecutor = new AgentExecutor({
   agent,
   tools: [weatherTool],
-  verbose: true
+  verbose: true,
 });
 
 const result = await agentExecutor.invoke({
-  input: "What's the weather in Tokyo?"
+  input: "What's the weather in Tokyo?",
 });
 ```
 
 ### After (1.0):
-```typescript
-import { createAgent, tool, HumanMessage } from "langchain";
-import { z } from "zod";
 
-const weatherTool = tool(
-  async ({ city }) => `Weather in ${city}: sunny`,
-  { name: "weather", schema: z.object({ city: z.string() }) }
-);
+```typescript
+import { createAgent, tool, HumanMessage } from 'langchain';
+import { z } from 'zod';
+
+const weatherTool = tool(async ({ city }) => `Weather in ${city}: sunny`, {
+  name: 'weather',
+  schema: z.object({ city: z.string() }),
+});
 
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [weatherTool],
-  responseFormat: z.object({ answer: z.string() })
+  responseFormat: z.object({ answer: z.string() }),
 });
 
 const result = await agent.invoke({
-  messages: [new HumanMessage("What's the weather in Tokyo?")]
+  messages: [new HumanMessage("What's the weather in Tokyo?")],
 });
 
 console.log(result.structuredResponse?.answer);
 ```
 
 **Key improvements:**
+
 - **50% less code** for the same functionality
 - **Type-safe** structured responses
 - **Simpler imports** from single package

@@ -1,4 +1,4 @@
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatOpenAI } from '@langchain/openai';
 import { config } from './environment.js';
 
 /**
@@ -33,7 +33,8 @@ export class LLMFactory {
   ): ChatOpenAI {
     const modelName = model || 'openai/gpt-4o-mini';
     const apiKey = config.github.token || process.env.GITHUB_TOKEN;
-    const baseURL = config.github.modelsBaseUrl || 'https://models.github.ai/inference';
+    const baseURL =
+      config.github.modelsBaseUrl || 'https://models.github.ai/inference';
 
     if (!apiKey) {
       throw new Error(
@@ -50,9 +51,9 @@ export class LLMFactory {
         baseURL,
         apiKey,
         defaultHeaders: {
-          'User-Agent': 'langchainjs-agents/ci'
-        }
-      }
+          'User-Agent': 'langchainjs-agents/ci',
+        },
+      },
     });
   }
 

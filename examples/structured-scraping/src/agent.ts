@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod';
 import {
   scrapedDataSchema,
@@ -12,10 +12,30 @@ import {
 import { LLMFactory } from '../../../config/llm-factory.js';
 
 /**
- * Structured Web Scraping Agent
+ * Structured Web Scraping Agent - LangChain 1.0 Implementation
  *
  * This agent combines traditional web scraping with LLM-powered content understanding
  * to extract structured data from web pages with schema validation.
+ *
+ * LangChain 1.0 Features Used:
+ * - Modular imports (@langchain/openai)
+ * - Schema-first development with Zod
+ * - Modern LLM invocation patterns
+ * - Provider abstraction via LLMFactory
+ * - Robust error handling with fallbacks
+ *
+ * Implementation Choice: Direct LLM invocation vs LangGraph
+ *
+ * This agent uses a simple linear workflow:
+ * 1. Fetch webpage → 2. Extract basic data → 3. Enhance with LLM → 4. Validate
+ *
+ * LangGraph would add unnecessary complexity for this use case. Consider LangGraph for:
+ * - Multi-step decision workflows
+ * - Tool-calling agents with dynamic paths
+ * - Conversational agents with memory
+ * - Multi-agent collaboration patterns
+ *
+ * @see docs/langchain-1.0-implementation.md for detailed implementation guide
  */
 export class StructuredScrapingAgent {
   private llm: ChatOpenAI;
@@ -36,7 +56,7 @@ export class StructuredScrapingAgent {
 
   /**
    * Scrape and structure data from a webpage
-   * (LLM usage updated to use OpenAI SDK)
+   * (LangChain 1.0: Uses modern message format and schema validation)
    */
   async scrape(
     url: string,
@@ -213,8 +233,8 @@ Raw text sample: ${basicData.rawText.substring(0, 1000)}...
 Please return enhanced structured data with improved metadata, better content categorization, and any additional insights you can extract.`;
 
     const messages = [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: humanPrompt },
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: humanPrompt },
     ];
 
     try {
@@ -237,9 +257,12 @@ Please return enhanced structured data with improved metadata, better content ca
           url: basicData.url || '',
           scrapedAt: new Date().toISOString(),
           wordCount: basicData.wordCount,
-          language: enhanced.metadata?.language || this.detectLanguage(basicData.rawText),
+          language:
+            enhanced.metadata?.language ||
+            this.detectLanguage(basicData.rawText),
           author: enhanced.metadata?.author || this.extractAuthor(rawHtml),
-          publishedAt: enhanced.metadata?.publishedAt || this.extractPublishDate(rawHtml),
+          publishedAt:
+            enhanced.metadata?.publishedAt || this.extractPublishDate(rawHtml),
         },
       };
     } catch (error) {

@@ -75,13 +75,13 @@ DEBUG=* npm test
 For more control in your test files:
 
 ```typescript
-import { setDebugLevel, Logger } from "langchain/debug";
+import { setDebugLevel, Logger } from 'langchain/debug';
 
 // Set debug level before running tests
 beforeAll(() => {
   // Available levels: 'error', 'warn', 'info', 'debug', 'verbose'
   setDebugLevel('debug');
-  
+
   // Or enable specific loggers
   Logger.enable('langchain:agents:*');
   Logger.enable('langchain:tools:*');
@@ -90,15 +90,15 @@ beforeAll(() => {
 // In your test
 test('agent should call weather tool', async () => {
   const agent = await createAgent({
-    model: "openai:gpt-4o-mini",
+    model: 'openai:gpt-4o-mini',
     tools: [weatherTool],
-    debug: true // Enable debug for this agent instance
+    debug: true, // Enable debug for this agent instance
   });
-  
+
   const result = await agent.invoke({
-    messages: [new HumanMessage("What's the weather?")]
+    messages: [new HumanMessage("What's the weather?")],
   });
-  
+
   // Debug logs will show:
   // - Tool selection reasoning
   // - Tool execution details
@@ -111,33 +111,33 @@ test('agent should call weather tool', async () => {
 For structured logging in tests:
 
 ```typescript
-import { Logger } from "langchain/debug";
+import { Logger } from 'langchain/debug';
 
 // Custom logger for tests
 const testLogger = new Logger('test', {
   level: 'debug',
   format: 'json', // or 'pretty' for human-readable
-  timestamp: true
+  timestamp: true,
 });
 
 // Use in agent creation
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [weatherTool],
-  logger: testLogger
+  logger: testLogger,
 });
 
 // Manual logging in tests
 test('complex agent workflow', async () => {
   testLogger.debug('Starting agent test');
-  
+
   const result = await agent.invoke({
-    messages: [new HumanMessage("Complex query")]
+    messages: [new HumanMessage('Complex query')],
   });
-  
-  testLogger.info('Agent response received', { 
+
+  testLogger.info('Agent response received', {
     messageCount: result.messages.length,
-    hasToolCalls: result.messages.some(m => m.tool_calls?.length > 0)
+    hasToolCalls: result.messages.some((m) => m.tool_calls?.length > 0),
   });
 });
 ```
@@ -145,29 +145,38 @@ test('complex agent workflow', async () => {
 ### 4. Debug Levels and What They Show
 
 #### Error Level (Minimal)
+
 ```bash
 DEBUG_LEVEL=error npm test
 ```
+
 Shows only:
+
 - Critical failures
 - Tool execution errors
 - Model API errors
 
 #### Debug Level (Recommended for Tests)
+
 ```bash
 DEBUG_LEVEL=debug npm test
 ```
+
 Shows:
+
 - Agent decision-making process
 - Tool calls and responses
 - Chain execution steps
 - Model inputs and outputs (truncated)
 
 #### Verbose Level (Maximum Detail)
+
 ```bash
 DEBUG_LEVEL=verbose npm test
 ```
+
 Shows everything including:
+
 - Full prompt texts
 - Complete model responses
 - Internal state changes
@@ -176,17 +185,18 @@ Shows everything including:
 ### 5. Component-Specific Debug Logging
 
 #### Agent Debug Logging
+
 ```typescript
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [weatherTool],
   debug: {
     level: 'debug',
     logToolCalls: true,
     logModelInputs: true,
     logModelOutputs: true,
-    logStateChanges: true
-  }
+    logStateChanges: true,
+  },
 });
 
 // Logs will show:
@@ -197,8 +207,9 @@ const agent = await createAgent({
 ```
 
 #### Tool Debug Logging
+
 ```typescript
-import { tool } from "langchain";
+import { tool } from 'langchain';
 
 const debugWeatherTool = tool(
   async ({ city }) => {
@@ -208,25 +219,26 @@ const debugWeatherTool = tool(
     return result;
   },
   {
-    name: "weather",
-    description: "Get weather for a city",
+    name: 'weather',
+    description: 'Get weather for a city',
     schema: z.object({ city: z.string() }),
-    debug: true // Enable tool-level debugging
+    debug: true, // Enable tool-level debugging
   }
 );
 ```
 
 #### Chain Debug Logging
-```typescript
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
 
-const model = new ChatOpenAI({ 
-  model: "gpt-4o-mini",
-  verbose: true // Enable model debugging
+```typescript
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+
+const model = new ChatOpenAI({
+  model: 'gpt-4o-mini',
+  verbose: true, // Enable model debugging
 });
 
-const prompt = ChatPromptTemplate.fromTemplate("Answer: {question}");
+const prompt = ChatPromptTemplate.fromTemplate('Answer: {question}');
 
 const debugChain = prompt.pipe(model, { debug: true }).pipe(outputParser);
 
@@ -234,7 +246,7 @@ const debugChain = prompt.pipe(model, { debug: true }).pipe(outputParser);
 debugChain.debug = true;
 
 test('chain execution debug', async () => {
-  const result = await debugChain.invoke({ question: "What is 2+2?" });
+  const result = await debugChain.invoke({ question: 'What is 2+2?' });
   // Logs will show each step of the chain execution
 });
 ```
@@ -249,13 +261,13 @@ module.exports = {
   testEnvironment: 'node',
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
   // Ensure console logs are shown during tests
-  verbose: true
+  verbose: true,
 };
 ```
 
 ```typescript
 // src/test/setup.ts
-import { setDebugLevel } from "langchain/debug";
+import { setDebugLevel } from 'langchain/debug';
 
 // Configure debug logging for all tests
 beforeAll(() => {
@@ -269,15 +281,17 @@ beforeAll(() => {
 export const captureDebugLogs = () => {
   const logs: string[] = [];
   const originalConsoleLog = console.log;
-  
+
   console.log = (...args) => {
     logs.push(args.join(' '));
     originalConsoleLog(...args);
   };
-  
+
   return {
     getLogs: () => logs,
-    restore: () => { console.log = originalConsoleLog; }
+    restore: () => {
+      console.log = originalConsoleLog;
+    },
   };
 };
 ```
@@ -285,19 +299,20 @@ export const captureDebugLogs = () => {
 ### 7. Debug Logging in Test Examples
 
 #### Test with Debug Logging
+
 ```typescript
 describe('Agent Tool Calling', () => {
   let debugCapture: ReturnType<typeof captureDebugLogs>;
-  
+
   beforeEach(() => {
     debugCapture = captureDebugLogs();
     process.env.DEBUG = 'langchain:agents:*';
   });
-  
+
   afterEach(() => {
     debugCapture.restore();
   });
-  
+
   test('should call weather tool correctly', async () => {
     const weatherTool = tool(
       async ({ city }) => {
@@ -305,56 +320,58 @@ describe('Agent Tool Calling', () => {
         return `Weather in ${city}: sunny, 22°C`;
       },
       {
-        name: "weather",
-        schema: z.object({ city: z.string() })
+        name: 'weather',
+        schema: z.object({ city: z.string() }),
       }
     );
-    
+
     const agent = await createAgent({
-      model: "openai:gpt-4o-mini",
+      model: 'openai:gpt-4o-mini',
       tools: [weatherTool],
-      debug: true
+      debug: true,
     });
-    
+
     const result = await agent.invoke({
-      messages: [new HumanMessage("What's the weather in Tokyo?")]
+      messages: [new HumanMessage("What's the weather in Tokyo?")],
     });
-    
+
     // Verify debug logs captured the tool call
     const logs = debugCapture.getLogs();
-    expect(logs.some(log => log.includes('Weather API called for: Tokyo'))).toBe(true);
-    expect(logs.some(log => log.includes('langchain:agent'))).toBe(true);
-    
+    expect(
+      logs.some((log) => log.includes('Weather API called for: Tokyo'))
+    ).toBe(true);
+    expect(logs.some((log) => log.includes('langchain:agent'))).toBe(true);
+
     // Verify the actual result
     expect(result.messages).toHaveLength(2); // User + AI response
     expect(result.messages[1].content).toContain('Tokyo');
   });
-  
+
   test('should show debug info when tool fails', async () => {
     const failingTool = tool(
       async () => {
-        throw new Error("API unavailable");
+        throw new Error('API unavailable');
       },
       {
-        name: "failingTool",
-        schema: z.object({})
+        name: 'failingTool',
+        schema: z.object({}),
       }
     );
-    
+
     const agent = await createAgent({
-      model: "openai:gpt-4o-mini",
+      model: 'openai:gpt-4o-mini',
       tools: [failingTool],
-      debug: true
+      debug: true,
     });
-    
+
     const result = await agent.invoke({
-      messages: [new HumanMessage("Use the failing tool")]
+      messages: [new HumanMessage('Use the failing tool')],
     });
-    
+
     // Check debug logs show the error
     const logs = debugCapture.getLogs();
-    expect(logs.some(log => log.includes('API unavailable'))).toBe(true);
-    expect(logs.some(log => log.includes('Tool error'))).toBe(true);
+    expect(logs.some((log) => log.includes('API unavailable'))).toBe(true);
+    expect(logs.some((log) => log.includes('Tool error'))).toBe(true);
   });
 });
 ```
@@ -367,7 +384,7 @@ describe('Agent Tool Calling', () => {
     "test": "jest",
     "test:debug": "DEBUG=langchain:* jest --verbose",
     "test:debug:agents": "DEBUG=langchain:agents:* jest --verbose",
-    "test:debug:tools": "DEBUG=langchain:tools:* jest --verbose", 
+    "test:debug:tools": "DEBUG=langchain:tools:* jest --verbose",
     "test:debug:verbose": "DEBUG_LEVEL=verbose DEBUG=* jest --verbose",
     "test:watch:debug": "DEBUG=langchain:* jest --watch --verbose"
   }
@@ -380,22 +397,22 @@ describe('Agent Tool Calling', () => {
 // config/debug.ts
 export const getDebugConfig = () => {
   const env = process.env.NODE_ENV || 'development';
-  
+
   const configs = {
     development: {
       level: 'debug',
-      components: ['langchain:agents:*', 'langchain:tools:*']
+      components: ['langchain:agents:*', 'langchain:tools:*'],
     },
     test: {
       level: 'debug',
-      components: ['langchain:*']
+      components: ['langchain:*'],
     },
     production: {
       level: 'error',
-      components: []
-    }
+      components: [],
+    },
   };
-  
+
   return configs[env] || configs.development;
 };
 
@@ -441,8 +458,8 @@ The centerpiece of LangChain.js 1.0 is the new `createAgent` function that simpl
 #### Basic Agent Creation
 
 ```typescript
-import { createAgent, tool, HumanMessage } from "langchain";
-import { z } from "zod";
+import { createAgent, tool, HumanMessage } from 'langchain';
+import { z } from 'zod';
 
 // Create a simple tool
 const getWeather = tool(
@@ -451,23 +468,23 @@ const getWeather = tool(
     return `The weather in ${city} is sunny and 22°C`;
   },
   {
-    name: "getWeather",
-    description: "Get current weather for a city",
+    name: 'getWeather',
+    description: 'Get current weather for a city',
     schema: z.object({
-      city: z.string().describe("The city to get weather for")
-    })
+      city: z.string().describe('The city to get weather for'),
+    }),
   }
 );
 
 // Create agent with model-as-string syntax
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [getWeather],
 });
 
 // Invoke the agent
 const result = await agent.invoke({
-  messages: [new HumanMessage("What's the weather in Tokyo?")]
+  messages: [new HumanMessage("What's the weather in Tokyo?")],
 });
 
 console.log(result.messages[result.messages.length - 1].content);
@@ -476,24 +493,24 @@ console.log(result.messages[result.messages.length - 1].content);
 #### Agent with Structured Output
 
 ```typescript
-import { createAgent, HumanMessage } from "langchain";
-import { z } from "zod";
+import { createAgent, HumanMessage } from 'langchain';
+import { z } from 'zod';
 
 // Define response schema
 const WeatherResponseSchema = z.object({
   temperature: z.number(),
   condition: z.string(),
-  recommendation: z.string()
+  recommendation: z.string(),
 });
 
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [getWeather],
-  responseFormat: WeatherResponseSchema
+  responseFormat: WeatherResponseSchema,
 });
 
 const result = await agent.invoke({
-  messages: [new HumanMessage("What's the weather in Tokyo?")]
+  messages: [new HumanMessage("What's the weather in Tokyo?")],
 });
 
 // Access structured response
@@ -504,19 +521,20 @@ console.log(result.structuredResponse);
 #### Agent with Custom System Prompt
 
 ```typescript
-import { createAgent, SystemMessage, HumanMessage } from "langchain";
+import { createAgent, SystemMessage, HumanMessage } from 'langchain';
 
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [getWeather],
-  systemPrompt: "You are a helpful weather assistant. Always provide detailed weather information and practical advice based on conditions."
+  systemPrompt:
+    'You are a helpful weather assistant. Always provide detailed weather information and practical advice based on conditions.',
 });
 
 const result = await agent.invoke({
   messages: [
-    new SystemMessage("You are a helpful weather assistant"),
-    new HumanMessage("What's the weather like in Paris?")
-  ]
+    new SystemMessage('You are a helpful weather assistant'),
+    new HumanMessage("What's the weather like in Paris?"),
+  ],
 });
 ```
 
@@ -527,8 +545,8 @@ const result = await agent.invoke({
 #### Simple Function Tool
 
 ```typescript
-import { tool } from "langchain";
-import { z } from "zod";
+import { tool } from 'langchain';
+import { z } from 'zod';
 
 const calculateTip = tool(
   async ({ billAmount, tipPercentage }) => {
@@ -537,12 +555,14 @@ const calculateTip = tool(
     return `Tip: $${tip.toFixed(2)}, Total: $${total.toFixed(2)}`;
   },
   {
-    name: "calculateTip",
-    description: "Calculate tip and total amount for a bill",
+    name: 'calculateTip',
+    description: 'Calculate tip and total amount for a bill',
     schema: z.object({
-      billAmount: z.number().describe("The bill amount in dollars"),
-      tipPercentage: z.number().describe("The tip percentage (e.g., 15 for 15%)")
-    })
+      billAmount: z.number().describe('The bill amount in dollars'),
+      tipPercentage: z
+        .number()
+        .describe('The tip percentage (e.g., 15 for 15%)'),
+    }),
   }
 );
 ```
@@ -550,22 +570,24 @@ const calculateTip = tool(
 #### Async Tool with API Integration
 
 ```typescript
-import { tool } from "langchain";
-import { z } from "zod";
+import { tool } from 'langchain';
+import { z } from 'zod';
 
 const searchWeb = tool(
   async ({ query }) => {
     // Mock web search - replace with actual API
-    const response = await fetch(`https://api.example.com/search?q=${encodeURIComponent(query)}`);
+    const response = await fetch(
+      `https://api.example.com/search?q=${encodeURIComponent(query)}`
+    );
     const data = await response.json();
-    return data.results.map(r => r.title + ": " + r.snippet).join("\n");
+    return data.results.map((r) => r.title + ': ' + r.snippet).join('\n');
   },
   {
-    name: "searchWeb",
-    description: "Search the web for current information",
+    name: 'searchWeb',
+    description: 'Search the web for current information',
     schema: z.object({
-      query: z.string().describe("The search query")
-    })
+      query: z.string().describe('The search query'),
+    }),
   }
 );
 ```
@@ -573,8 +595,8 @@ const searchWeb = tool(
 #### Tool with Error Handling
 
 ```typescript
-import { tool } from "langchain";
-import { z } from "zod";
+import { tool } from 'langchain';
+import { z } from 'zod';
 
 const getStockPrice = tool(
   async ({ symbol }) => {
@@ -591,11 +613,11 @@ const getStockPrice = tool(
     }
   },
   {
-    name: "getStockPrice",
-    description: "Get current stock price and change",
+    name: 'getStockPrice',
+    description: 'Get current stock price and change',
     schema: z.object({
-      symbol: z.string().describe("Stock symbol (e.g., AAPL, MSFT)")
-    })
+      symbol: z.string().describe('Stock symbol (e.g., AAPL, MSFT)'),
+    }),
   }
 );
 ```
@@ -603,25 +625,22 @@ const getStockPrice = tool(
 ### 3. ToolNode for Graph Workflows
 
 ```typescript
-import { ToolNode, tool } from "langchain";
-import { StateGraph } from "@langchain/langgraph";
-import { z } from "zod";
+import { ToolNode, tool } from 'langchain';
+import { StateGraph } from '@langchain/langgraph';
+import { z } from 'zod';
 
-const searchTool = tool(
-  async ({ query }) => `Results for: ${query}`,
-  {
-    name: "search",
-    schema: z.object({ query: z.string() })
-  }
-);
+const searchTool = tool(async ({ query }) => `Results for: ${query}`, {
+  name: 'search',
+  schema: z.object({ query: z.string() }),
+});
 
 // Create a ToolNode
 const toolNode = new ToolNode([searchTool]);
 
 // Use in a graph
 const graph = new StateGraph({ channels: { messages: [] } })
-  .addNode("tools", toolNode)
-  .addEdge("__start__", "tools");
+  .addNode('tools', toolNode)
+  .addEdge('__start__', 'tools');
 
 const compiledGraph = graph.compile();
 ```
@@ -629,10 +648,15 @@ const compiledGraph = graph.compile();
 ### 4. Tool Error Handling Strategies
 
 ```typescript
-import { ToolNode, tool } from "langchain";
+import { ToolNode, tool } from 'langchain';
 
 const tools = [
-  tool(async () => { throw new Error("Tool failed"); }, { name: "failingTool", schema: z.object({}) })
+  tool(
+    async () => {
+      throw new Error('Tool failed');
+    },
+    { name: 'failingTool', schema: z.object({}) }
+  ),
 ];
 
 // Default: Handle errors gracefully
@@ -644,14 +668,14 @@ const strictToolNode = new ToolNode(tools, { handleToolErrors: false });
 // Custom error handling
 const customToolNode = new ToolNode(tools, {
   handleToolErrors: (error, toolCall) => {
-    if (error.message.includes("network")) {
+    if (error.message.includes('network')) {
       return new ToolMessage({
-        content: "Network error occurred. Please try again.",
-        tool_call_id: toolCall.id!
+        content: 'Network error occurred. Please try again.',
+        tool_call_id: toolCall.id!,
       });
     }
     throw error;
-  }
+  },
 });
 ```
 
@@ -660,9 +684,9 @@ const customToolNode = new ToolNode(tools, {
 ### 5. Long-term Memory with InMemoryStore
 
 ```typescript
-import { InMemoryStore } from "@langchain/langgraph";
-import { createAgent, tool } from "langchain";
-import { z } from "zod";
+import { InMemoryStore } from '@langchain/langgraph';
+import { createAgent, tool } from 'langchain';
+import { z } from 'zod';
 
 // Create store with embedding function
 const embed = (texts: string[]): number[][] => {
@@ -674,21 +698,23 @@ const store = new InMemoryStore({ index: { embed, dims: 2 } });
 
 // Create context schema
 const contextSchema = z.object({
-  userId: z.string()
+  userId: z.string(),
 });
 
 // Tool to read user information
 const getUserInfo = tool(
   async (_, runtime) => {
     const userId = runtime.context?.userId;
-    if (!userId) throw new Error("userId is required");
-    
-    const userInfo = await store.get(["users"], userId);
-    return userInfo ? JSON.stringify(userInfo.value) : "No user information found";
+    if (!userId) throw new Error('userId is required');
+
+    const userInfo = await store.get(['users'], userId);
+    return userInfo
+      ? JSON.stringify(userInfo.value)
+      : 'No user information found';
   },
   {
-    name: "getUserInfo",
-    description: "Get user information from memory"
+    name: 'getUserInfo',
+    description: 'Get user information from memory',
   }
 );
 
@@ -696,55 +722,59 @@ const getUserInfo = tool(
 const saveUserInfo = tool(
   async ({ name, preferences }, runtime) => {
     const userId = runtime.context?.userId;
-    if (!userId) throw new Error("userId is required");
-    
-    await store.put(["users"], userId, { name, preferences });
+    if (!userId) throw new Error('userId is required');
+
+    await store.put(['users'], userId, { name, preferences });
     return `Saved information for user ${userId}`;
   },
   {
-    name: "saveUserInfo",
-    description: "Save user information to memory",
+    name: 'saveUserInfo',
+    description: 'Save user information to memory',
     schema: z.object({
       name: z.string(),
-      preferences: z.array(z.string())
-    })
+      preferences: z.array(z.string()),
+    }),
   }
 );
 
 // Create agent with memory
 const agentWithMemory = createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [getUserInfo, saveUserInfo],
   contextSchema,
-  store
+  store,
 });
 
 // Use agent with context
 const result = await agentWithMemory.invoke(
-  { messages: [{ role: "user", content: "My name is John and I like TypeScript" }] },
-  { context: { userId: "user_123" } }
+  {
+    messages: [
+      { role: 'user', content: 'My name is John and I like TypeScript' },
+    ],
+  },
+  { context: { userId: 'user_123' } }
 );
 ```
 
 ### 6. Conversational Memory
 
 ```typescript
-import { createAgent, HumanMessage, AIMessage } from "langchain";
+import { createAgent, HumanMessage, AIMessage } from 'langchain';
 
 // Simulate conversation history
 let conversationHistory = [];
 
 async function chatWithMemory(userMessage: string) {
   const agent = await createAgent({
-    model: "openai:gpt-4o-mini",
-    tools: []
+    model: 'openai:gpt-4o-mini',
+    tools: [],
   });
 
   // Add user message to history
   conversationHistory.push(new HumanMessage(userMessage));
 
   const result = await agent.invoke({
-    messages: conversationHistory
+    messages: conversationHistory,
   });
 
   // Add AI response to history
@@ -764,35 +794,36 @@ await chatWithMemory("What's my name?"); // Should remember "Alice"
 ### 7. Basic LCEL Chains
 
 ```typescript
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
 
-const model = new ChatOpenAI({ model: "gpt-4o-mini" });
-const prompt = ChatPromptTemplate.fromTemplate(
-  "Tell me a joke about {topic}"
-);
+const model = new ChatOpenAI({ model: 'gpt-4o-mini' });
+const prompt = ChatPromptTemplate.fromTemplate('Tell me a joke about {topic}');
 const outputParser = new StringOutputParser();
 
 // Create chain using LCEL pipe operator
 const chain = prompt.pipe(model).pipe(outputParser);
 
-const result = await chain.invoke({ topic: "programming" });
+const result = await chain.invoke({ topic: 'programming' });
 console.log(result);
 ```
 
 ### 8. Complex Chain with Multiple Steps
 
 ```typescript
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { StringOutputParser } from "@langchain/core/output_parsers";
-import { RunnablePassthrough, RunnableSequence } from "@langchain/core/runnables";
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
+import {
+  RunnablePassthrough,
+  RunnableSequence,
+} from '@langchain/core/runnables';
 
-const model = new ChatOpenAI({ model: "gpt-4o-mini" });
+const model = new ChatOpenAI({ model: 'gpt-4o-mini' });
 
 const titlePrompt = ChatPromptTemplate.fromTemplate(
-  "Generate a creative title for a {genre} story about {topic}"
+  'Generate a creative title for a {genre} story about {topic}'
 );
 
 const storyPrompt = ChatPromptTemplate.fromTemplate(
@@ -804,32 +835,32 @@ const storyChain = RunnableSequence.from([
   {
     title: titlePrompt.pipe(model).pipe(new StringOutputParser()),
     genre: (input) => input.genre,
-    topic: (input) => input.topic
+    topic: (input) => input.topic,
   },
-  storyPrompt.pipe(model).pipe(new StringOutputParser())
+  storyPrompt.pipe(model).pipe(new StringOutputParser()),
 ]);
 
 const result = await storyChain.invoke({
-  genre: "science fiction",
-  topic: "time travel"
+  genre: 'science fiction',
+  topic: 'time travel',
 });
 ```
 
 ### 9. Chain with Conditional Logic
 
 ```typescript
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { RunnableBranch } from "@langchain/core/runnables";
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { RunnableBranch } from '@langchain/core/runnables';
 
-const model = new ChatOpenAI({ model: "gpt-4o-mini" });
+const model = new ChatOpenAI({ model: 'gpt-4o-mini' });
 
 const positivePrompt = ChatPromptTemplate.fromTemplate(
   "You're in a great mood! Respond enthusiastically to: {input}"
 );
 
 const neutralPrompt = ChatPromptTemplate.fromTemplate(
-  "Respond normally to: {input}"
+  'Respond normally to: {input}'
 );
 
 const negativePrompt = ChatPromptTemplate.fromTemplate(
@@ -837,14 +868,14 @@ const negativePrompt = ChatPromptTemplate.fromTemplate(
 );
 
 const conditionalChain = RunnableBranch.from([
-  [(input) => input.sentiment === "positive", positivePrompt.pipe(model)],
-  [(input) => input.sentiment === "negative", negativePrompt.pipe(model)],
-  neutralPrompt.pipe(model) // default
+  [(input) => input.sentiment === 'positive', positivePrompt.pipe(model)],
+  [(input) => input.sentiment === 'negative', negativePrompt.pipe(model)],
+  neutralPrompt.pipe(model), // default
 ]);
 
 const result = await conditionalChain.invoke({
-  input: "How are you today?",
-  sentiment: "positive"
+  input: 'How are you today?',
+  sentiment: 'positive',
 });
 ```
 
@@ -853,26 +884,26 @@ const result = await conditionalChain.invoke({
 ### 10. Basic Vector Store Setup
 
 ```typescript
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { Document } from "@langchain/core/documents";
+import { MemoryVectorStore } from 'langchain/vectorstores/memory';
+import { OpenAIEmbeddings } from '@langchain/openai';
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
+import { Document } from '@langchain/core/documents';
 
 // Create embeddings
 const embeddings = new OpenAIEmbeddings({
-  model: "text-embedding-3-small"
+  model: 'text-embedding-3-small',
 });
 
 // Create documents
 const documents = [
   new Document({
-    pageContent: "LangChain is a framework for building LLM applications.",
-    metadata: { source: "docs", category: "introduction" }
+    pageContent: 'LangChain is a framework for building LLM applications.',
+    metadata: { source: 'docs', category: 'introduction' },
   }),
   new Document({
-    pageContent: "Vector stores enable semantic search over documents.",
-    metadata: { source: "docs", category: "retrieval" }
-  })
+    pageContent: 'Vector stores enable semantic search over documents.',
+    metadata: { source: 'docs', category: 'retrieval' },
+  }),
 ];
 
 // Create vector store
@@ -882,20 +913,23 @@ const vectorStore = await MemoryVectorStore.fromDocuments(
 );
 
 // Search for similar documents
-const results = await vectorStore.similaritySearch("What is LangChain?", 2);
+const results = await vectorStore.similaritySearch('What is LangChain?', 2);
 console.log(results);
 ```
 
 ### 11. RAG Chain with Retriever
 
 ```typescript
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { StringOutputParser } from "@langchain/core/output_parsers";
-import { RunnablePassthrough, RunnableSequence } from "@langchain/core/runnables";
-import { formatDocumentsAsString } from "langchain/util/document";
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
+import {
+  RunnablePassthrough,
+  RunnableSequence,
+} from '@langchain/core/runnables';
+import { formatDocumentsAsString } from 'langchain/util/document';
 
-const model = new ChatOpenAI({ model: "gpt-4o-mini" });
+const model = new ChatOpenAI({ model: 'gpt-4o-mini' });
 const retriever = vectorStore.asRetriever({ k: 3 });
 
 const prompt = ChatPromptTemplate.fromTemplate(`
@@ -910,45 +944,45 @@ Answer:`);
 const ragChain = RunnableSequence.from([
   {
     context: retriever.pipe(formatDocumentsAsString),
-    question: new RunnablePassthrough()
+    question: new RunnablePassthrough(),
   },
   prompt,
   model,
-  new StringOutputParser()
+  new StringOutputParser(),
 ]);
 
-const answer = await ragChain.invoke("How does vector search work?");
+const answer = await ragChain.invoke('How does vector search work?');
 console.log(answer);
 ```
 
 ### 12. Advanced Retriever with Metadata Filtering
 
 ```typescript
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 
 // Create retriever with metadata filters
 const filteredRetriever = vectorStore.asRetriever({
   k: 5,
-  filter: { category: "retrieval" },
-  searchType: "similarity"
+  filter: { category: 'retrieval' },
+  searchType: 'similarity',
 });
 
 // Multi-vector retriever for different document types
 class MultiVectorRetriever {
   constructor(private retrievers: Map<string, any>) {}
-  
+
   async retrieve(query: string, docType?: string) {
     if (docType && this.retrievers.has(docType)) {
       return await this.retrievers.get(docType).getRelevantDocuments(query);
     }
-    
+
     // Search all retrievers and combine results
     const allResults = [];
     for (const [type, retriever] of this.retrievers) {
       const results = await retriever.getRelevantDocuments(query);
-      allResults.push(...results.map(doc => ({ ...doc, type })));
+      allResults.push(...results.map((doc) => ({ ...doc, type })));
     }
-    
+
     return allResults.slice(0, 5); // Return top 5
   }
 }
@@ -959,30 +993,30 @@ class MultiVectorRetriever {
 ### 13. Structured Output Parsing
 
 ```typescript
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { z } from "zod";
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { z } from 'zod';
 
-const model = new ChatOpenAI({ model: "gpt-4o-mini" });
+const model = new ChatOpenAI({ model: 'gpt-4o-mini' });
 
 // Define schema
 const PersonSchema = z.object({
   name: z.string().describe("The person's name"),
   age: z.number().describe("The person's age"),
-  occupation: z.string().describe("The person's job")
+  occupation: z.string().describe("The person's job"),
 });
 
 // Use with structured output
 const structuredModel = model.withStructuredOutput(PersonSchema);
 
 const prompt = ChatPromptTemplate.fromTemplate(
-  "Extract person information from: {text}"
+  'Extract person information from: {text}'
 );
 
 const chain = prompt.pipe(structuredModel);
 
 const result = await chain.invoke({
-  text: "John Smith is a 30-year-old software engineer."
+  text: 'John Smith is a 30-year-old software engineer.',
 });
 
 console.log(result); // { name: "John Smith", age: 30, occupation: "software engineer" }
@@ -991,11 +1025,11 @@ console.log(result); // { name: "John Smith", age: 30, occupation: "software eng
 ### 14. List Output Parser
 
 ```typescript
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { CommaSeparatedListOutputParser } from "@langchain/core/output_parsers";
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { CommaSeparatedListOutputParser } from '@langchain/core/output_parsers';
 
-const model = new ChatOpenAI({ model: "gpt-4o-mini" });
+const model = new ChatOpenAI({ model: 'gpt-4o-mini' });
 const parser = new CommaSeparatedListOutputParser();
 
 const prompt = ChatPromptTemplate.fromTemplate(`
@@ -1006,8 +1040,8 @@ List 5 {category} items.
 const chain = prompt.pipe(model).pipe(parser);
 
 const result = await chain.invoke({
-  category: "programming languages",
-  format_instructions: parser.getFormatInstructions()
+  category: 'programming languages',
+  format_instructions: parser.getFormatInstructions(),
 });
 
 console.log(result); // ["JavaScript", "Python", "Java", "Go", "Rust"]
@@ -1016,7 +1050,7 @@ console.log(result); // ["JavaScript", "Python", "Java", "Go", "Rust"]
 ### 15. Custom Output Parser
 
 ```typescript
-import { BaseOutputParser } from "@langchain/core/output_parsers";
+import { BaseOutputParser } from '@langchain/core/output_parsers';
 
 class EmailExtractorParser extends BaseOutputParser<string[]> {
   constructor() {
@@ -1029,12 +1063,14 @@ class EmailExtractorParser extends BaseOutputParser<string[]> {
   }
 
   getFormatInstructions(): string {
-    return "Include email addresses in your response.";
+    return 'Include email addresses in your response.';
   }
 }
 
 const emailParser = new EmailExtractorParser();
-const result = await emailParser.parse("Contact john@example.com or mary@company.org");
+const result = await emailParser.parse(
+  'Contact john@example.com or mary@company.org'
+);
 console.log(result); // ["john@example.com", "mary@company.org"]
 ```
 
@@ -1043,84 +1079,100 @@ console.log(result); // ["john@example.com", "mary@company.org"]
 ### 16. Dynamic Prompt Templates
 
 ```typescript
-import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
-import { HumanMessage, AIMessage } from "@langchain/core/messages";
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from '@langchain/core/prompts';
+import { HumanMessage, AIMessage } from '@langchain/core/messages';
 
 const prompt = ChatPromptTemplate.fromMessages([
-  ["system", "You are a helpful assistant specializing in {domain}."],
-  new MessagesPlaceholder("history"),
-  ["human", "{input}"]
+  ['system', 'You are a helpful assistant specializing in {domain}.'],
+  new MessagesPlaceholder('history'),
+  ['human', '{input}'],
 ]);
 
 // Format with variables
 const formattedPrompt = await prompt.formatMessages({
-  domain: "software development",
+  domain: 'software development',
   history: [
-    new HumanMessage("What is React?"),
-    new AIMessage("React is a JavaScript library for building user interfaces.")
+    new HumanMessage('What is React?'),
+    new AIMessage(
+      'React is a JavaScript library for building user interfaces.'
+    ),
   ],
-  input: "How do I use hooks?"
+  input: 'How do I use hooks?',
 });
 ```
 
 ### 17. Few-Shot Prompting
 
 ```typescript
-import { FewShotChatMessagePromptTemplate, ChatPromptTemplate } from "@langchain/core/prompts";
+import {
+  FewShotChatMessagePromptTemplate,
+  ChatPromptTemplate,
+} from '@langchain/core/prompts';
 
 // Define examples
 const examples = [
   {
-    input: "2 + 2",
-    output: "4"
+    input: '2 + 2',
+    output: '4',
   },
   {
-    input: "5 * 3",
-    output: "15"
-  }
+    input: '5 * 3',
+    output: '15',
+  },
 ];
 
 // Create example prompt
 const examplePrompt = ChatPromptTemplate.fromMessages([
-  ["human", "{input}"],
-  ["ai", "{output}"]
+  ['human', '{input}'],
+  ['ai', '{output}'],
 ]);
 
 // Create few-shot prompt
 const fewShotPrompt = new FewShotChatMessagePromptTemplate({
   examplePrompt,
   examples,
-  inputVariables: ["input"]
+  inputVariables: ['input'],
 });
 
 const finalPrompt = ChatPromptTemplate.fromMessages([
-  ["system", "You are a math tutor. Here are some examples:"],
+  ['system', 'You are a math tutor. Here are some examples:'],
   fewShotPrompt,
-  ["human", "{input}"]
+  ['human', '{input}'],
 ]);
 ```
 
 ### 18. Conditional Prompts
 
 ```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { ChatPromptTemplate } from '@langchain/core/prompts';
 
 class ConditionalPromptTemplate {
   constructor(private prompts: Map<string, ChatPromptTemplate>) {}
-  
+
   getPrompt(condition: string): ChatPromptTemplate {
-    return this.prompts.get(condition) || this.prompts.get("default")!;
+    return this.prompts.get(condition) || this.prompts.get('default')!;
   }
 }
 
 const prompts = new Map([
-  ["formal", ChatPromptTemplate.fromTemplate("Please provide a formal response to: {query}")],
-  ["casual", ChatPromptTemplate.fromTemplate("Hey! Can you help with: {query}")],
-  ["default", ChatPromptTemplate.fromTemplate("Respond to: {query}")]
+  [
+    'formal',
+    ChatPromptTemplate.fromTemplate(
+      'Please provide a formal response to: {query}'
+    ),
+  ],
+  [
+    'casual',
+    ChatPromptTemplate.fromTemplate('Hey! Can you help with: {query}'),
+  ],
+  ['default', ChatPromptTemplate.fromTemplate('Respond to: {query}')],
 ]);
 
 const conditionalPrompt = new ConditionalPromptTemplate(prompts);
-const selectedPrompt = conditionalPrompt.getPrompt("formal");
+const selectedPrompt = conditionalPrompt.getPrompt('formal');
 ```
 
 ## LangGraph Integration
@@ -1128,52 +1180,48 @@ const selectedPrompt = conditionalPrompt.getPrompt("formal");
 ### 19. Basic State Graph
 
 ```typescript
-import { StateGraph, Annotation } from "@langchain/langgraph";
-import { ChatOpenAI } from "@langchain/openai";
+import { StateGraph, Annotation } from '@langchain/langgraph';
+import { ChatOpenAI } from '@langchain/openai';
 
 // Define state schema
 const GraphState = Annotation.Root({
   messages: Annotation<any[]>({
-    reducer: (current, update) => current.concat(update)
+    reducer: (current, update) => current.concat(update),
   }),
   next: Annotation<string>({
-    reducer: (current, update) => update || current
-  })
+    reducer: (current, update) => update || current,
+  }),
 });
 
 // Create nodes
-const model = new ChatOpenAI({ model: "gpt-4o-mini" });
+const model = new ChatOpenAI({ model: 'gpt-4o-mini' });
 
 const reasoningNode = async (state: typeof GraphState.State) => {
   const response = await model.invoke(state.messages);
   return {
     messages: [response],
-    next: "action"
+    next: 'action',
   };
 };
 
 const actionNode = async (state: typeof GraphState.State) => {
   // Perform some action
   return {
-    messages: [{ role: "system", content: "Action completed" }],
-    next: "end"
+    messages: [{ role: 'system', content: 'Action completed' }],
+    next: 'end',
   };
 };
 
 // Build graph
 const workflow = new StateGraph(GraphState)
-  .addNode("reasoning", reasoningNode)
-  .addNode("action", actionNode)
-  .addEdge("__start__", "reasoning")
-  .addConditionalEdges(
-    "reasoning",
-    (state) => state.next,
-    {
-      action: "action",
-      end: "__end__"
-    }
-  )
-  .addEdge("action", "__end__");
+  .addNode('reasoning', reasoningNode)
+  .addNode('action', actionNode)
+  .addEdge('__start__', 'reasoning')
+  .addConditionalEdges('reasoning', (state) => state.next, {
+    action: 'action',
+    end: '__end__',
+  })
+  .addEdge('action', '__end__');
 
 const graph = workflow.compile();
 ```
@@ -1181,30 +1229,32 @@ const graph = workflow.compile();
 ### 20. Agent with Graph Workflow
 
 ```typescript
-import { StateGraph, Annotation } from "@langchain/langgraph";
-import { ToolNode, tool } from "langchain";
-import { ChatOpenAI } from "@langchain/openai";
+import { StateGraph, Annotation } from '@langchain/langgraph';
+import { ToolNode, tool } from 'langchain';
+import { ChatOpenAI } from '@langchain/openai';
 
 const tools = [
   tool(async ({ query }) => `Search results for: ${query}`, {
-    name: "search",
-    schema: z.object({ query: z.string() })
-  })
+    name: 'search',
+    schema: z.object({ query: z.string() }),
+  }),
 ];
 
-const model = new ChatOpenAI({ model: "gpt-4o-mini" }).bindTools(tools);
+const model = new ChatOpenAI({ model: 'gpt-4o-mini' }).bindTools(tools);
 const toolNode = new ToolNode(tools);
 
 const GraphState = Annotation.Root({
   messages: Annotation<any[]>({
-    reducer: (current, update) => current.concat(update)
-  })
+    reducer: (current, update) => current.concat(update),
+  }),
 });
 
 // Define the function that determines whether to continue or not
 const shouldContinue = (state: typeof GraphState.State) => {
   const lastMessage = state.messages[state.messages.length - 1];
-  return lastMessage.tool_calls && lastMessage.tool_calls.length > 0 ? "tools" : "__end__";
+  return lastMessage.tool_calls && lastMessage.tool_calls.length > 0
+    ? 'tools'
+    : '__end__';
 };
 
 // Define the function that calls the model
@@ -1215,14 +1265,14 @@ const callModel = async (state: typeof GraphState.State) => {
 
 // Build and compile the graph
 const workflow = new StateGraph(GraphState)
-  .addNode("agent", callModel)
-  .addNode("tools", toolNode)
-  .addEdge("__start__", "agent")
-  .addConditionalEdges("agent", shouldContinue, {
-    tools: "tools",
-    __end__: "__end__"
+  .addNode('agent', callModel)
+  .addNode('tools', toolNode)
+  .addEdge('__start__', 'agent')
+  .addConditionalEdges('agent', shouldContinue, {
+    tools: 'tools',
+    __end__: '__end__',
   })
-  .addEdge("tools", "agent");
+  .addEdge('tools', 'agent');
 
 const agentGraph = workflow.compile();
 ```
@@ -1232,37 +1282,37 @@ const agentGraph = workflow.compile();
 ### 21. Middleware for Agents
 
 ```typescript
-import { createAgent, tool } from "langchain";
+import { createAgent, tool } from 'langchain';
 
 // Custom middleware function
 const loggingMiddleware = (next) => async (input, config) => {
-  console.log("Input:", input);
+  console.log('Input:', input);
   const result = await next(input, config);
-  console.log("Output:", result);
+  console.log('Output:', result);
   return result;
 };
 
 // Agent with middleware
 const agentWithMiddleware = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [searchTool],
-  middleware: [loggingMiddleware]
+  middleware: [loggingMiddleware],
 });
 ```
 
 ### 22. Streaming Responses
 
 ```typescript
-import { createAgent, HumanMessage } from "langchain";
+import { createAgent, HumanMessage } from 'langchain';
 
 const agent = await createAgent({
-  model: "openai:gpt-4o-mini",
-  tools: []
+  model: 'openai:gpt-4o-mini',
+  tools: [],
 });
 
 // Stream the response
 const stream = await agent.stream({
-  messages: [new HumanMessage("Tell me a story")]
+  messages: [new HumanMessage('Tell me a story')],
 });
 
 for await (const chunk of stream) {
@@ -1273,41 +1323,41 @@ for await (const chunk of stream) {
 ### 23. Error Recovery and Retry Logic
 
 ```typescript
-import { createAgent, tool } from "langchain";
+import { createAgent, tool } from 'langchain';
 
 const unreliableTool = tool(
   async ({ input }) => {
     if (Math.random() < 0.5) {
-      throw new Error("Network error");
+      throw new Error('Network error');
     }
     return `Processed: ${input}`;
   },
   {
-    name: "unreliableTool",
-    description: "A tool that sometimes fails",
-    schema: z.object({ input: z.string() })
+    name: 'unreliableTool',
+    description: 'A tool that sometimes fails',
+    schema: z.object({ input: z.string() }),
   }
 );
 
 // Agent with retry logic
 const resilientAgent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [unreliableTool],
   toolErrorRecovery: {
     maxRetries: 3,
     retryDelay: 1000,
     onError: (error, attempt) => {
       console.log(`Tool failed (attempt ${attempt}):`, error.message);
-    }
-  }
+    },
+  },
 });
 ```
 
 ### 24. Multi-Modal Agents
 
 ```typescript
-import { createAgent, tool } from "langchain";
-import { z } from "zod";
+import { createAgent, tool } from 'langchain';
+import { z } from 'zod';
 
 const imageAnalysisTool = tool(
   async ({ imageUrl }) => {
@@ -1315,35 +1365,40 @@ const imageAnalysisTool = tool(
     return `This image shows: A beautiful sunset over mountains`;
   },
   {
-    name: "analyzeImage",
-    description: "Analyze an image and describe its contents",
+    name: 'analyzeImage',
+    description: 'Analyze an image and describe its contents',
     schema: z.object({
-      imageUrl: z.string().url()
-    })
+      imageUrl: z.string().url(),
+    }),
   }
 );
 
 const multiModalAgent = await createAgent({
-  model: "openai:gpt-4o", // Use GPT-4 Vision
+  model: 'openai:gpt-4o', // Use GPT-4 Vision
   tools: [imageAnalysisTool],
 });
 
 // Send image for analysis
 const result = await multiModalAgent.invoke({
-  messages: [{
-    role: "user",
-    content: [
-      { type: "text", text: "What do you see in this image?" },
-      { type: "image_url", image_url: { url: "https://example.com/image.jpg" } }
-    ]
-  }]
+  messages: [
+    {
+      role: 'user',
+      content: [
+        { type: 'text', text: 'What do you see in this image?' },
+        {
+          type: 'image_url',
+          image_url: { url: 'https://example.com/image.jpg' },
+        },
+      ],
+    },
+  ],
 });
 ```
 
 ### 25. Custom Runnable Components
 
 ```typescript
-import { Runnable } from "@langchain/core/runnables";
+import { Runnable } from '@langchain/core/runnables';
 
 class CustomProcessor extends Runnable<string, string> {
   constructor(private processingFunction: (input: string) => string) {
@@ -1370,9 +1425,9 @@ const chain = customProcessor.pipe(model).pipe(new StringOutputParser());
 ### 26. Customer Service Bot
 
 ```typescript
-import { createAgent, tool } from "langchain";
-import { InMemoryStore } from "@langchain/langgraph";
-import { z } from "zod";
+import { createAgent, tool } from 'langchain';
+import { InMemoryStore } from '@langchain/langgraph';
+import { z } from 'zod';
 
 // Customer service tools
 const lookupOrder = tool(
@@ -1380,15 +1435,15 @@ const lookupOrder = tool(
     // Mock order lookup
     return {
       orderId,
-      status: "shipped",
-      trackingNumber: "1234567890",
-      estimatedDelivery: "2024-01-15"
+      status: 'shipped',
+      trackingNumber: '1234567890',
+      estimatedDelivery: '2024-01-15',
     };
   },
   {
-    name: "lookupOrder",
-    description: "Look up order status by ID",
-    schema: z.object({ orderId: z.string() })
+    name: 'lookupOrder',
+    description: 'Look up order status by ID',
+    schema: z.object({ orderId: z.string() }),
   }
 );
 
@@ -1399,40 +1454,42 @@ const createTicket = tool(
     return `Created support ticket ${ticketId} for ${customerEmail}`;
   },
   {
-    name: "createTicket",
-    description: "Create a support ticket for customer issues",
+    name: 'createTicket',
+    description: 'Create a support ticket for customer issues',
     schema: z.object({
       issue: z.string(),
-      customerEmail: z.string().email()
-    })
+      customerEmail: z.string().email(),
+    }),
   }
 );
 
 // Create customer service agent
 const customerServiceAgent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [lookupOrder, createTicket],
   systemPrompt: `You are a helpful customer service representative. 
   Always be polite and helpful. If you need to create a ticket, 
-  ask for the customer's email address first.`
+  ask for the customer's email address first.`,
 });
 
 // Example conversation
 const response = await customerServiceAgent.invoke({
-  messages: [{
-    role: "user",
-    content: "Hi, I want to check my order status. My order ID is ORD-12345."
-  }]
+  messages: [
+    {
+      role: 'user',
+      content: 'Hi, I want to check my order status. My order ID is ORD-12345.',
+    },
+  ],
 });
 ```
 
 ### 27. Research Assistant
 
 ```typescript
-import { createAgent, tool } from "langchain";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { z } from "zod";
+import { createAgent, tool } from 'langchain';
+import { MemoryVectorStore } from 'langchain/vectorstores/memory';
+import { OpenAIEmbeddings } from '@langchain/openai';
+import { z } from 'zod';
 
 // Research tools
 const searchAcademicPapers = tool(
@@ -1444,12 +1501,12 @@ const searchAcademicPapers = tool(
     3. "Large Language Models: A Survey" (2024)`;
   },
   {
-    name: "searchAcademicPapers",
-    description: "Search for academic papers on a topic",
+    name: 'searchAcademicPapers',
+    description: 'Search for academic papers on a topic',
     schema: z.object({
       query: z.string(),
-      maxResults: z.number().optional()
-    })
+      maxResults: z.number().optional(),
+    }),
   }
 );
 
@@ -1460,27 +1517,28 @@ const summarizePaper = tool(
     to improving model performance through architectural modifications...`;
   },
   {
-    name: "summarizePaper",
-    description: "Get a summary of an academic paper",
+    name: 'summarizePaper',
+    description: 'Get a summary of an academic paper',
     schema: z.object({
-      paperTitle: z.string()
-    })
+      paperTitle: z.string(),
+    }),
   }
 );
 
 // Research assistant
 const researchAssistant = await createAgent({
-  model: "openai:gpt-4o",
+  model: 'openai:gpt-4o',
   tools: [searchAcademicPapers, summarizePaper],
   systemPrompt: `You are an AI research assistant. Help users find and 
   understand academic papers. Always cite your sources and provide 
-  accurate summaries.`
+  accurate summaries.`,
 });
 ```
 
 This comprehensive guide covers all the major components and patterns in LangChain.js 1.0. Each example is designed to be practical and immediately usable, demonstrating the new simplified architecture while maintaining the powerful capabilities that make LangChain a leading framework for LLM applications.
 
 The key improvements in 1.0 include:
+
 - Simplified agent creation with `createAgent`
 - Direct exports from the root package
 - Better tool error handling

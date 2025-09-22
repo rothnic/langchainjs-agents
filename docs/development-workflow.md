@@ -56,6 +56,7 @@ USE_REAL_APIS=true npm run test:integration
 ```
 
 ⚠️ **Note**: Integration tests require:
+
 - `USE_REAL_APIS=true` environment variable
 - Valid `OPENAI_API_KEY` environment variable
 - `OPENAI_BASE_URL=https://openrouter.ai/api/v1` for OpenRouter (recommended)
@@ -75,6 +76,7 @@ Our GitHub Actions workflow runs:
 ## Development Best Practices
 
 ### Before Each Commit:
+
 1. ✅ Run all pre-commit validation commands
 2. ✅ Ensure no TypeScript errors
 3. ✅ Address any linting errors (warnings for `any` types acceptable in utility code)
@@ -83,12 +85,14 @@ Our GitHub Actions workflow runs:
 6. ✅ Check code formatting is consistent
 
 ### Acceptable Warnings:
+
 - `@typescript-eslint/no-explicit-any` warnings in:
   - Test utilities and mocks
   - External library type definitions
   - Complex type intersections where `any` is necessary
 
 ### Required Fixes:
+
 - All TypeScript compilation errors
 - ESLint errors (not warnings)
 - Failed unit tests
@@ -114,13 +118,13 @@ class WebScrapingTools {
         title: 'Page Title',
         headings: ['H1', 'H2', 'H3'],
         sections: ['header', 'main', 'footer'],
-        hasNavigation: true
+        hasNavigation: true,
       };
     },
     {
       name: 'getPageOutline',
       description: 'Get page structure outline for efficient navigation',
-      schema: z.object({ url: z.string().url() })
+      schema: z.object({ url: z.string().url() }),
     }
   );
 
@@ -131,7 +135,7 @@ class WebScrapingTools {
       return {
         content: 'Section content...',
         wordCount: 150,
-        links: ['link1', 'link2']
+        links: ['link1', 'link2'],
       };
     },
     {
@@ -139,8 +143,8 @@ class WebScrapingTools {
       description: 'Extract content from a specific page section',
       schema: z.object({
         url: z.string().url(),
-        section: z.string()
-      })
+        section: z.string(),
+      }),
     }
   );
 
@@ -151,7 +155,7 @@ class WebScrapingTools {
       return {
         internal: ['/page1', '/page2'],
         external: ['https://external.com'],
-        navigation: ['#top', '#bottom']
+        navigation: ['#top', '#bottom'],
       };
     },
     {
@@ -159,8 +163,8 @@ class WebScrapingTools {
       description: 'Extract and categorize links from a page section',
       schema: z.object({
         url: z.string().url(),
-        section: z.string()
-      })
+        section: z.string(),
+      }),
     }
   );
 }
@@ -182,8 +186,8 @@ class ToolBasedAgent {
       tools: [
         this.tools.getPageOutline,
         this.tools.extractSectionContent,
-        this.tools.extractSectionLinks
-      ]
+        this.tools.extractSectionLinks,
+      ],
     });
   }
 
@@ -192,10 +196,12 @@ class ToolBasedAgent {
 
     // Use agent to analyze and extract content iteratively
     const result = await agent.invoke({
-      messages: [{
-        role: 'user',
-        content: `Analyze and extract content from: ${url}. Start by getting the page outline, then extract main content sections.`
-      }]
+      messages: [
+        {
+          role: 'user',
+          content: `Analyze and extract content from: ${url}. Start by getting the page outline, then extract main content sections.`,
+        },
+      ],
     });
 
     return this.parseAgentResponse(result);
@@ -248,29 +254,37 @@ class LoggingToolBasedAgent extends ToolBasedAgent {
 
     try {
       const agent = await this.createAgent();
-      console.log(`[AGENT] Created agent with ${agent.tools?.length || 0} tools`);
+      console.log(
+        `[AGENT] Created agent with ${agent.tools?.length || 0} tools`
+      );
 
       const result = await agent.invoke({
-        messages: [{
-          role: 'user',
-          content: `Analyze and extract content from: ${url}`
-        }]
+        messages: [
+          {
+            role: 'user',
+            content: `Analyze and extract content from: ${url}`,
+          },
+        ],
       });
 
-      console.log(`[AGENT] Agent completed processing, response length: ${result.messages.length}`);
+      console.log(
+        `[AGENT] Agent completed processing, response length: ${result.messages.length}`
+      );
 
       // Log tool calls made during execution
-      const toolCalls = result.messages.filter(m => m.tool_calls?.length > 0);
+      const toolCalls = result.messages.filter((m) => m.tool_calls?.length > 0);
       console.log(`[AGENT] Tool calls made: ${toolCalls.length}`);
 
       toolCalls.forEach((message, index) => {
-        message.tool_calls?.forEach(call => {
-          console.log(`[TOOL] Call ${index + 1}: ${call.name} with args:`, call.args);
+        message.tool_calls?.forEach((call) => {
+          console.log(
+            `[TOOL] Call ${index + 1}: ${call.name} with args:`,
+            call.args
+          );
         });
       });
 
       return this.parseAgentResponse(result);
-
     } catch (error) {
       console.error(`[AGENT] Error processing ${url}:`, error);
       throw error;
@@ -316,6 +330,7 @@ async executeWithRetry(operation: () => Promise<any>, maxRetries = 3) {
 ## Environment Setup
 
 Ensure you have:
+
 - Node.js 18 or higher
 - npm dependencies installed
 - Proper environment variables:
@@ -328,29 +343,35 @@ Ensure you have:
 ### Common Issues:
 
 **TypeScript Errors**:
+
 - Check for missing dependencies: `npm install`
 - Verify imports are correct
 - Ensure types are properly defined
 
 **Linting Errors**:
+
 - Run `npx eslint . --ext .ts,.js --fix` for auto-fixes
 - Address unused variables (prefix with `_` if intentionally unused)
 
 **Test Failures**:
+
 - Check mock configurations
 - Verify test environment setup
 - Ensure test isolation
 
 **Build Failures**:
+
 - Clean `dist/` directory: `rm -rf dist/`
 - Check TypeScript configuration
 - Verify entry points in `package.json`
 
 **Format Issues**:
+
 - Run `npx prettier --write .`
 - Check `.prettierrc.json` configuration
 
 **Agent Development Issues**:
+
 - Verify tool definitions are correct and schemas are properly typed
 - Test with simpler tools first when debugging
 - Check OpenRouter API key and base URL configuration
@@ -361,36 +382,42 @@ Ensure you have:
 ## Best Practices for Tool-Based Agent Development
 
 ### Tool Design
+
 - **Be Specific**: Create specialized tools for specific interactions
 - **Efficient**: Design tools that avoid loading full content when possible
 - **Composable**: Make tools that work well together in sequences
 - **Well-Typed**: Use clear Zod schemas for tool parameters and responses
 
 ### Agent Architecture
+
 - **Outline First**: Get content structure before detailed extraction
 - **Iterative Processing**: Process content in focused chunks
 - **Logging**: Include comprehensive logging for debugging
 - **Error Recovery**: Implement robust error handling for tool failures
 
 ### OpenRouter/OpenAI Configuration
+
 - **Use OpenRouter**: Set `OPENAI_BASE_URL=https://openrouter.ai/api/v1` for flexibility
 - **Fallback to Direct**: Use `https://api.openai.com/v1` for direct OpenAI access
 - **Environment Variables**: Keep API keys secure and configurable
 - **Model Selection**: Choose appropriate models (gpt-4o-mini for most tasks)
 
 ### Testing
+
 - **Mock Tools**: Use mocks for unit tests to ensure fast, reliable testing
 - **Real API Tests**: Separate integration tests with increased timeouts
 - **Edge Cases**: Test network errors, malformed inputs, and tool failures
 - **Logging Verification**: Ensure logging works for debugging
 
 ### Performance
+
 - **Tool Efficiency**: Design tools to minimize data transfer
 - **Caching**: Cache tool results when appropriate
 - **Batching**: Process multiple operations together when possible
 - **Monitoring**: Track tool usage, success rates, and performance metrics
 
 ### Agent Patterns
+
 - **Web Scraping Agents**: Tool-based content extraction and navigation
 - **Data Processing Agents**: Structured data extraction and transformation
 - **Content Analysis Agents**: Document analysis and summarization

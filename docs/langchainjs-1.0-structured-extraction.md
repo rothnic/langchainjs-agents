@@ -24,7 +24,7 @@ This comprehensive guide covers all approaches to structured data extraction usi
 Structured data extraction transforms unstructured text into machine-readable formats like JSON objects, database records, or typed data structures. LangChain.js 1.0 provides multiple approaches:
 
 - **Function/Tool Calling**: Using model-native structured output capabilities
-- **JSON Schema**: Defining output format with JSON Schema specifications  
+- **JSON Schema**: Defining output format with JSON Schema specifications
 - **Zod Schemas**: Type-safe TypeScript schema definition and validation
 - **Custom Parsers**: Fallback parsing for models without native support
 
@@ -55,29 +55,30 @@ config();
 The simplest approach using LangChain.js 1.0's `createAgent`:
 
 ```typescript
-import { createAgent, HumanMessage } from "langchain";
-import { z } from "zod";
+import { createAgent, HumanMessage } from 'langchain';
+import { z } from 'zod';
 
 // Define extraction schema
 const PersonSchema = z.object({
   name: z.string().optional().describe("The person's full name"),
   age: z.number().optional().describe("The person's age in years"),
-  email: z.string().email().optional().describe("Email address if mentioned"),
-  profession: z.string().optional().describe("Job title or profession")
+  email: z.string().email().optional().describe('Email address if mentioned'),
+  profession: z.string().optional().describe('Job title or profession'),
 });
 
 // Create extraction agent
 const extractionAgent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [],
-  responseFormat: PersonSchema
+  responseFormat: PersonSchema,
 });
 
 // Extract data from text
-const text = "John Smith is a 30-year-old software engineer. You can reach him at john@example.com.";
+const text =
+  'John Smith is a 30-year-old software engineer. You can reach him at john@example.com.';
 
 const result = await extractionAgent.invoke({
-  messages: [new HumanMessage(`Extract person information from: ${text}`)]
+  messages: [new HumanMessage(`Extract person information from: ${text}`)],
 });
 
 console.log(result.structuredResponse);
@@ -89,32 +90,36 @@ console.log(result.structuredResponse);
 Extract multiple entities from a single text:
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 // Single person schema
 const PersonSchema = z.object({
   name: z.string().optional().describe("The person's full name"),
   age: z.number().optional().describe("The person's age"),
-  role: z.string().optional().describe("Their role or job title")
+  role: z.string().optional().describe('Their role or job title'),
 });
 
 // Multiple people schema
 const PeopleSchema = z.object({
-  people: z.array(PersonSchema).describe("List of people mentioned in the text"),
-  summary: z.string().describe("Brief summary of the text content")
+  people: z
+    .array(PersonSchema)
+    .describe('List of people mentioned in the text'),
+  summary: z.string().describe('Brief summary of the text content'),
 });
 
 const multipleExtractionAgent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [],
-  responseFormat: PeopleSchema
+  responseFormat: PeopleSchema,
 });
 
 const text = `The meeting included CEO Alice Johnson (45), CTO Bob Williams (38), 
 and intern Sarah Chen (22). They discussed the Q4 roadmap.`;
 
 const result = await multipleExtractionAgent.invoke({
-  messages: [new HumanMessage(`Extract all people and provide a summary: ${text}`)]
+  messages: [
+    new HumanMessage(`Extract all people and provide a summary: ${text}`),
+  ],
 });
 
 console.log(result.structuredResponse);
@@ -135,27 +140,29 @@ console.log(result.structuredResponse);
 ### 3. Complex Schema Patterns
 
 #### Nested Objects
+
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 const AddressSchema = z.object({
   street: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
   zipCode: z.string().optional(),
-  country: z.string().optional()
+  country: z.string().optional(),
 });
 
 const CompanySchema = z.object({
-  name: z.string().describe("Company name"),
-  industry: z.string().optional().describe("Industry sector"),
+  name: z.string().describe('Company name'),
+  industry: z.string().optional().describe('Industry sector'),
   address: AddressSchema.optional(),
-  employees: z.number().optional().describe("Number of employees"),
-  founded: z.number().optional().describe("Year founded")
+  employees: z.number().optional().describe('Number of employees'),
+  founded: z.number().optional().describe('Year founded'),
 });
 ```
 
 #### Enums and Unions
+
 ```typescript
 const StatusEnum = z.enum(['active', 'inactive', 'pending', 'suspended']);
 
@@ -165,20 +172,21 @@ const ContactSchema = z.object({
   contactMethod: z.union([
     z.object({ type: z.literal('email'), value: z.string().email() }),
     z.object({ type: z.literal('phone'), value: z.string() }),
-    z.object({ type: z.literal('address'), value: AddressSchema })
+    z.object({ type: z.literal('address'), value: AddressSchema }),
   ]),
-  priority: z.enum(['low', 'medium', 'high']).default('medium')
+  priority: z.enum(['low', 'medium', 'high']).default('medium'),
 });
 ```
 
 #### Array Validation
+
 ```typescript
 const EventSchema = z.object({
   title: z.string(),
-  date: z.string().describe("Date in YYYY-MM-DD format"),
-  attendees: z.array(z.string()).min(1).describe("List of attendee names"),
-  tags: z.array(z.string()).optional().describe("Event categories or tags"),
-  duration: z.number().positive().describe("Duration in minutes")
+  date: z.string().describe('Date in YYYY-MM-DD format'),
+  attendees: z.array(z.string()).min(1).describe('List of attendee names'),
+  tags: z.array(z.string()).optional().describe('Event categories or tags'),
+  duration: z.number().positive().describe('Duration in minutes'),
 });
 ```
 
@@ -187,32 +195,34 @@ const EventSchema = z.object({
 ```typescript
 const WellDocumentedSchema = z.object({
   // Clear, specific descriptions
-  customerName: z.string()
-    .min(1)
-    .describe("Full legal name of the customer"),
-  
+  customerName: z.string().min(1).describe('Full legal name of the customer'),
+
   // Optional fields to avoid hallucination
-  dateOfBirth: z.string()
+  dateOfBirth: z
+    .string()
     .optional()
-    .describe("Birth date in YYYY-MM-DD format, only if explicitly mentioned"),
-  
+    .describe('Birth date in YYYY-MM-DD format, only if explicitly mentioned'),
+
   // Constrained values
-  accountType: z.enum(['premium', 'standard', 'basic'])
-    .describe("Account tier - premium, standard, or basic"),
-  
+  accountType: z
+    .enum(['premium', 'standard', 'basic'])
+    .describe('Account tier - premium, standard, or basic'),
+
   // Numeric validation
-  creditScore: z.number()
+  creditScore: z
+    .number()
     .int()
     .min(300)
     .max(850)
     .optional()
-    .describe("Credit score between 300-850, only if mentioned"),
-  
+    .describe('Credit score between 300-850, only if mentioned'),
+
   // Array with constraints
-  previousAddresses: z.array(AddressSchema)
+  previousAddresses: z
+    .array(AddressSchema)
     .max(5)
     .optional()
-    .describe("Up to 5 previous addresses if mentioned in chronological order")
+    .describe('Up to 5 previous addresses if mentioned in chronological order'),
 });
 ```
 
@@ -223,27 +233,29 @@ const WellDocumentedSchema = z.object({
 For direct model usage without agents:
 
 ```typescript
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { z } from "zod";
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { z } from 'zod';
 
-const model = new ChatOpenAI({ 
-  model: "gpt-4o-mini",
-  temperature: 0  // Lower temperature for more consistent extraction
+const model = new ChatOpenAI({
+  model: 'gpt-4o-mini',
+  temperature: 0, // Lower temperature for more consistent extraction
 });
 
 const InvoiceSchema = z.object({
   invoiceNumber: z.string(),
-  date: z.string().describe("Invoice date in YYYY-MM-DD format"),
+  date: z.string().describe('Invoice date in YYYY-MM-DD format'),
   vendor: z.string(),
-  total: z.number().describe("Total amount as a number"),
-  currency: z.string().default("USD"),
-  lineItems: z.array(z.object({
-    description: z.string(),
-    quantity: z.number(),
-    unitPrice: z.number(),
-    total: z.number()
-  }))
+  total: z.number().describe('Total amount as a number'),
+  currency: z.string().default('USD'),
+  lineItems: z.array(
+    z.object({
+      description: z.string(),
+      quantity: z.number(),
+      unitPrice: z.number(),
+      total: z.number(),
+    })
+  ),
 });
 
 // Create structured model
@@ -284,14 +296,14 @@ You can specify which method the model should use:
 ```typescript
 // Use function calling (default for supported models)
 const functionCallingModel = model.withStructuredOutput(schema, {
-  method: "functionCalling",
-  name: "extract_data"
+  method: 'functionCalling',
+  name: 'extract_data',
 });
 
 // Use JSON mode (for models that support it)
 const jsonModeModel = model.withStructuredOutput(schema, {
-  method: "jsonMode",
-  name: "extraction_result"
+  method: 'jsonMode',
+  name: 'extraction_result',
 });
 
 // Let LangChain choose the best method
@@ -305,8 +317,8 @@ const autoModel = model.withStructuredOutput(schema);
 For models without native structured output support:
 
 ```typescript
-import { JsonOutputParser } from "@langchain/core/output_parsers";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { JsonOutputParser } from '@langchain/core/output_parsers';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
 
 type ExtractedData = {
   entities: Array<{
@@ -324,7 +336,9 @@ type ExtractedData = {
 const parser = new JsonOutputParser<ExtractedData>();
 
 const prompt = ChatPromptTemplate.fromMessages([
-  ["system", `Extract entities and relationships from the text.
+  [
+    'system',
+    `Extract entities and relationships from the text.
   
   {format_instructions}
   
@@ -333,22 +347,23 @@ const prompt = ChatPromptTemplate.fromMessages([
     "entities": [{{ "name": "string", "type": "string", "confidence": number }}],
     "relationships": [{{ "from": "string", "to": "string", "type": "string" }}]
   }}
-  `],
-  ["human", "{text}"]
+  `,
+  ],
+  ['human', '{text}'],
 ]);
 
 const extractionChain = prompt.pipe(model).pipe(parser);
 
 const result = await extractionChain.invoke({
-  text: "Apple Inc. was founded by Steve Jobs in Cupertino, California.",
-  format_instructions: parser.getFormatInstructions()
+  text: 'Apple Inc. was founded by Steve Jobs in Cupertino, California.',
+  format_instructions: parser.getFormatInstructions(),
 });
 ```
 
 ### 8. Custom Parser with Error Recovery
 
-```typescript
-import { BaseOutputParser } from "@langchain/core/output_parsers";
+````typescript
+import { BaseOutputParser } from '@langchain/core/output_parsers';
 
 class RobustJsonParser<T> extends BaseOutputParser<T> {
   constructor(private schema: z.ZodSchema<T>) {
@@ -357,16 +372,16 @@ class RobustJsonParser<T> extends BaseOutputParser<T> {
 
   async parse(text: string): Promise<T> {
     // Try to extract JSON from markdown code blocks
-    const jsonMatch = text.match(/```json\n?(.*?)\n?```/s) || 
-                     text.match(/```\n?(.*?)\n?```/s);
-    
+    const jsonMatch =
+      text.match(/```json\n?(.*?)\n?```/s) || text.match(/```\n?(.*?)\n?```/s);
+
     let jsonStr = jsonMatch ? jsonMatch[1] : text;
-    
+
     // Clean common formatting issues
     jsonStr = jsonStr
       .replace(/^\s*```json\s*/, '')
       .replace(/\s*```\s*$/, '')
-      .replace(/,(\s*[}\]])/g, '$1')  // Remove trailing commas
+      .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
       .trim();
 
     try {
@@ -379,18 +394,20 @@ class RobustJsonParser<T> extends BaseOutputParser<T> {
         const parsed = JSON.parse(fixed);
         return this.schema.parse(parsed);
       } catch (secondError) {
-        throw new Error(`Failed to parse JSON: ${error.message}\nOriginal text: ${text}`);
+        throw new Error(
+          `Failed to parse JSON: ${error.message}\nOriginal text: ${text}`
+        );
       }
     }
   }
 
   private attemptJsonFix(jsonStr: string): string {
     return jsonStr
-      .replace(/([{,]\s*)(\w+):/g, '$1"$2":')  // Quote unquoted keys
-      .replace(/:\s*'([^']*)'/g, ': "$1"')      // Replace single quotes
-      .replace(/,(\s*[}\]])/g, '$1')           // Remove trailing commas
-      .replace(/\n/g, ' ')                     // Remove newlines
-      .replace(/\s+/g, ' ');                  // Normalize whitespace
+      .replace(/([{,]\s*)(\w+):/g, '$1"$2":') // Quote unquoted keys
+      .replace(/:\s*'([^']*)'/g, ': "$1"') // Replace single quotes
+      .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+      .replace(/\n/g, ' ') // Remove newlines
+      .replace(/\s+/g, ' '); // Normalize whitespace
   }
 
   getFormatInstructions(): string {
@@ -402,7 +419,7 @@ class RobustJsonParser<T> extends BaseOutputParser<T> {
 // Usage
 const robustParser = new RobustJsonParser(PersonSchema);
 const robustChain = prompt.pipe(model).pipe(robustParser);
-```
+````
 
 ## Reference Examples for Quality
 
@@ -411,88 +428,99 @@ const robustChain = prompt.pipe(model).pipe(robustParser);
 Reference examples dramatically improve extraction quality:
 
 ```typescript
-import { 
-  ChatPromptTemplate, 
+import {
+  ChatPromptTemplate,
   MessagesPlaceholder,
   HumanMessage,
   AIMessage,
-  ToolMessage
-} from "@langchain/core/prompts";
-import { v4 as uuidv4 } from "uuid";
+  ToolMessage,
+} from '@langchain/core/prompts';
+import { v4 as uuidv4 } from 'uuid';
 
 // Create example extraction scenarios
 const createExampleMessages = () => {
   const toolCallId = uuidv4();
-  
+
   return [
     // Example 1: Clear extraction
-    new HumanMessage("Dr. Sarah Wilson, 42, is a cardiologist at City Hospital."),
+    new HumanMessage(
+      'Dr. Sarah Wilson, 42, is a cardiologist at City Hospital.'
+    ),
     new AIMessage({
-      content: "",
-      tool_calls: [{
-        id: toolCallId,
-        name: "extract_person",
-        args: {
-          name: "Dr. Sarah Wilson",
-          age: 42,
-          profession: "cardiologist",
-          workplace: "City Hospital"
-        }
-      }]
+      content: '',
+      tool_calls: [
+        {
+          id: toolCallId,
+          name: 'extract_person',
+          args: {
+            name: 'Dr. Sarah Wilson',
+            age: 42,
+            profession: 'cardiologist',
+            workplace: 'City Hospital',
+          },
+        },
+      ],
     }),
     new ToolMessage({
-      content: "Successfully extracted person information.",
-      tool_call_id: toolCallId
+      content: 'Successfully extracted person information.',
+      tool_call_id: toolCallId,
     }),
-    
+
     // Example 2: Partial information
     new HumanMessage("John mentioned he works in tech but didn't say his age."),
     new AIMessage({
-      content: "",
-      tool_calls: [{
-        id: uuidv4(),
-        name: "extract_person",
-        args: {
-          name: "John",
-          profession: "technology worker"
-          // Note: age omitted when not mentioned
-        }
-      }]
+      content: '',
+      tool_calls: [
+        {
+          id: uuidv4(),
+          name: 'extract_person',
+          args: {
+            name: 'John',
+            profession: 'technology worker',
+            // Note: age omitted when not mentioned
+          },
+        },
+      ],
     }),
     new ToolMessage({
-      content: "Successfully extracted available person information.",
-      tool_call_id: uuidv4()
+      content: 'Successfully extracted available person information.',
+      tool_call_id: uuidv4(),
     }),
-    
+
     // Example 3: No relevant information
-    new HumanMessage("The weather today is sunny with a high of 75 degrees."),
+    new HumanMessage('The weather today is sunny with a high of 75 degrees.'),
     new AIMessage({
-      content: "",
-      tool_calls: [{
-        id: uuidv4(),
-        name: "extract_person",
-        args: {
-          people: []  // Empty when no people mentioned
-        }
-      }]
+      content: '',
+      tool_calls: [
+        {
+          id: uuidv4(),
+          name: 'extract_person',
+          args: {
+            people: [], // Empty when no people mentioned
+          },
+        },
+      ],
     }),
     new ToolMessage({
-      content: "No person information found in the text.",
-      tool_call_id: uuidv4()
-    })
+      content: 'No person information found in the text.',
+      tool_call_id: uuidv4(),
+    }),
   ];
 };
 
 // Create prompt with examples
 const promptWithExamples = ChatPromptTemplate.fromMessages([
-  ["system", `You are an expert extraction algorithm. 
+  [
+    'system',
+    `You are an expert extraction algorithm. 
   Only extract information that is clearly stated in the text.
   If information is not mentioned, omit that field entirely.
-  Look at the examples below to understand the expected behavior.`],
-  
-  new MessagesPlaceholder("examples"),
-  
-  ["human", "Extract person information from: {text}"]
+  Look at the examples below to understand the expected behavior.`,
+  ],
+
+  new MessagesPlaceholder('examples'),
+
+  ['human', 'Extract person information from: {text}'],
 ]);
 
 // Use with structured model
@@ -501,8 +529,8 @@ const modelWithExamples = model.withStructuredOutput(PersonSchema);
 const extractionWithExamples = promptWithExamples.pipe(modelWithExamples);
 
 const result = await extractionWithExamples.invoke({
-  text: "The new intern Sarah is 23 and studying computer science.",
-  examples: createExampleMessages()
+  text: 'The new intern Sarah is 23 and studying computer science.',
+  examples: createExampleMessages(),
 });
 ```
 
@@ -512,45 +540,52 @@ Select relevant examples based on input:
 
 ```typescript
 class ExampleSelector {
-  constructor(private examples: Array<{
-    input: string;
-    output: any;
-    category: string;
-  }>) {}
+  constructor(
+    private examples: Array<{
+      input: string;
+      output: any;
+      category: string;
+    }>
+  ) {}
 
   selectExamples(inputText: string, maxExamples: number = 3): any[] {
     // Simple keyword-based selection
     const inputWords = inputText.toLowerCase().split(/\s+/);
-    
-    const scored = this.examples.map(example => {
+
+    const scored = this.examples.map((example) => {
       const exampleWords = example.input.toLowerCase().split(/\s+/);
-      const commonWords = inputWords.filter(word => exampleWords.includes(word));
-      const score = commonWords.length / Math.max(inputWords.length, exampleWords.length);
-      
+      const commonWords = inputWords.filter((word) =>
+        exampleWords.includes(word)
+      );
+      const score =
+        commonWords.length / Math.max(inputWords.length, exampleWords.length);
+
       return { ...example, score };
     });
 
     return scored
       .sort((a, b) => b.score - a.score)
       .slice(0, maxExamples)
-      .map(ex => this.formatExample(ex));
+      .map((ex) => this.formatExample(ex));
   }
 
   private formatExample(example: any) {
     return [
       new HumanMessage(example.input),
       new AIMessage({
-        content: "",
-        tool_calls: [{
-          id: uuidv4(),
-          name: "extract_data",
-          args: example.output
-        }]
+        content: '',
+        tool_calls: [
+          {
+            id: uuidv4(),
+            name: 'extract_data',
+            args: example.output,
+          },
+        ],
       }),
       new ToolMessage({
-        content: "Extraction completed.",
-        tool_call_id: uuidv4()
-      })
+        content: 'Extraction completed.',
+        tool_call_id: uuidv4(),
+      }),
     ];
   }
 }
@@ -558,24 +593,28 @@ class ExampleSelector {
 // Usage
 const exampleSelector = new ExampleSelector([
   {
-    input: "Dr. Smith is a 45-year-old surgeon.",
-    output: { name: "Dr. Smith", age: 45, profession: "surgeon" },
-    category: "medical"
+    input: 'Dr. Smith is a 45-year-old surgeon.',
+    output: { name: 'Dr. Smith', age: 45, profession: 'surgeon' },
+    category: 'medical',
   },
   {
-    input: "Alice works as a software engineer at Google.",
-    output: { name: "Alice", profession: "software engineer", company: "Google" },
-    category: "tech"
+    input: 'Alice works as a software engineer at Google.',
+    output: {
+      name: 'Alice',
+      profession: 'software engineer',
+      company: 'Google',
+    },
+    category: 'tech',
   },
   // ... more examples
 ]);
 
 const dynamicExtractionChain = async (text: string) => {
   const relevantExamples = exampleSelector.selectExamples(text);
-  
+
   return await extractionWithExamples.invoke({
     text,
-    examples: relevantExamples.flat()
+    examples: relevantExamples.flat(),
   });
 };
 ```
@@ -585,7 +624,7 @@ const dynamicExtractionChain = async (text: string) => {
 ### 11. Validation and Error Recovery
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 class ValidatedExtractor {
   constructor(
@@ -600,62 +639,58 @@ class ValidatedExtractor {
     attempts: number;
   }> {
     const errors: string[] = [];
-    
+
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
         const result = await this.model.invoke({
-          messages: [new HumanMessage(`Extract structured data from: ${text}`)]
+          messages: [new HumanMessage(`Extract structured data from: ${text}`)],
         });
-        
+
         // Validate the result
         const validated = this.schema.parse(result.structuredResponse);
-        
+
         return {
           data: validated,
           errors: [],
-          attempts: attempt
+          attempts: attempt,
         };
-        
       } catch (error) {
-        const errorMsg = error instanceof z.ZodError 
-          ? this.formatZodError(error)
-          : error.message;
-        
+        const errorMsg =
+          error instanceof z.ZodError
+            ? this.formatZodError(error)
+            : error.message;
+
         errors.push(`Attempt ${attempt}: ${errorMsg}`);
-        
+
         if (attempt === this.maxRetries) {
           return {
             data: null,
             errors,
-            attempts: attempt
+            attempts: attempt,
           };
         }
-        
+
         // Wait before retry
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
       }
     }
   }
 
   private formatZodError(error: z.ZodError): string {
     return error.errors
-      .map(err => `${err.path.join('.')}: ${err.message}`)
+      .map((err) => `${err.path.join('.')}: ${err.message}`)
       .join('; ');
   }
 }
 
 // Usage
-const extractor = new ValidatedExtractor(
-  extractionAgent,
-  PersonSchema,
-  3
-);
+const extractor = new ValidatedExtractor(extractionAgent, PersonSchema, 3);
 
-const result = await extractor.extract("John is a 30-year-old engineer");
+const result = await extractor.extract('John is a 30-year-old engineer');
 if (result.data) {
-  console.log("Extracted:", result.data);
+  console.log('Extracted:', result.data);
 } else {
-  console.log("Extraction failed:", result.errors);
+  console.log('Extraction failed:', result.errors);
 }
 ```
 
@@ -663,11 +698,13 @@ if (result.data) {
 
 ```typescript
 class MultiStrategyExtractor {
-  constructor(private strategies: Array<{
-    name: string;
-    extractor: (text: string) => Promise<any>;
-    priority: number;
-  }>) {
+  constructor(
+    private strategies: Array<{
+      name: string;
+      extractor: (text: string) => Promise<any>;
+      priority: number;
+    }>
+  ) {
     this.strategies.sort((a, b) => b.priority - a.priority);
   }
 
@@ -676,63 +713,69 @@ class MultiStrategyExtractor {
     strategy: string;
     allAttempts: Array<{ strategy: string; success: boolean; error?: string }>;
   }> {
-    const attempts: Array<{ strategy: string; success: boolean; error?: string }> = [];
+    const attempts: Array<{
+      strategy: string;
+      success: boolean;
+      error?: string;
+    }> = [];
 
     for (const strategy of this.strategies) {
       try {
         const data = await strategy.extractor(text);
         attempts.push({ strategy: strategy.name, success: true });
-        
+
         return {
           data,
           strategy: strategy.name,
-          allAttempts: attempts
+          allAttempts: attempts,
         };
       } catch (error) {
-        attempts.push({ 
-          strategy: strategy.name, 
-          success: false, 
-          error: error.message 
+        attempts.push({
+          strategy: strategy.name,
+          success: false,
+          error: error.message,
         });
       }
     }
 
-    throw new Error(`All extraction strategies failed: ${JSON.stringify(attempts)}`);
+    throw new Error(
+      `All extraction strategies failed: ${JSON.stringify(attempts)}`
+    );
   }
 }
 
 // Define extraction strategies
 const strategies = [
   {
-    name: "structured_output",
+    name: 'structured_output',
     extractor: async (text: string) => {
       const result = await structuredModel.invoke({
-        messages: [new HumanMessage(`Extract data from: ${text}`)]
+        messages: [new HumanMessage(`Extract data from: ${text}`)],
       });
       return result.structuredResponse;
     },
-    priority: 3
+    priority: 3,
   },
   {
-    name: "function_calling",
+    name: 'function_calling',
     extractor: async (text: string) => {
       // Implementation using function calling
       return await functionCallingExtractor.extract(text);
     },
-    priority: 2
+    priority: 2,
   },
   {
-    name: "json_parsing",
+    name: 'json_parsing',
     extractor: async (text: string) => {
       // Implementation using JSON parsing
       return await jsonParsingExtractor.extract(text);
     },
-    priority: 1
-  }
+    priority: 1,
+  },
 ];
 
 const multiExtractor = new MultiStrategyExtractor(strategies);
-const result = await multiExtractor.extract("Complex text here...");
+const result = await multiExtractor.extract('Complex text here...');
 ```
 
 ## Advanced Extraction Patterns
@@ -747,30 +790,34 @@ const DocumentSchema = z.object({
     title: z.string(),
     author: z.string().optional(),
     date: z.string().optional(),
-    type: z.enum(['contract', 'invoice', 'report', 'email', 'other'])
+    type: z.enum(['contract', 'invoice', 'report', 'email', 'other']),
   }),
-  
-  sections: z.array(z.object({
-    heading: z.string(),
-    content: z.string(),
-    entities: z.array(z.object({
-      text: z.string(),
-      type: z.enum(['person', 'organization', 'date', 'money', 'location']),
-      confidence: z.number().min(0).max(1)
-    })),
-    keyPoints: z.array(z.string())
-  })),
-  
+
+  sections: z.array(
+    z.object({
+      heading: z.string(),
+      content: z.string(),
+      entities: z.array(
+        z.object({
+          text: z.string(),
+          type: z.enum(['person', 'organization', 'date', 'money', 'location']),
+          confidence: z.number().min(0).max(1),
+        })
+      ),
+      keyPoints: z.array(z.string()),
+    })
+  ),
+
   summary: z.object({
     overview: z.string(),
     actionItems: z.array(z.string()),
     decisions: z.array(z.string()),
-    nextSteps: z.array(z.string())
-  })
+    nextSteps: z.array(z.string()),
+  }),
 });
 
 const hierarchicalExtractor = await createAgent({
-  model: "openai:gpt-4o",  // Use more powerful model for complex extraction
+  model: 'openai:gpt-4o', // Use more powerful model for complex extraction
   tools: [],
   responseFormat: DocumentSchema,
   systemPrompt: `You are an expert document analyzer.
@@ -780,7 +827,7 @@ const hierarchicalExtractor = await createAgent({
   2. Section-level content with entities
   3. Overall summary with actionable insights
   
-  Be thorough but precise. Only extract information that is clearly present.`
+  Be thorough but precise. Only extract information that is clearly present.`,
 });
 ```
 
@@ -791,16 +838,26 @@ Extract different schemas based on content type:
 ```typescript
 const determineContentType = async (text: string): Promise<string> => {
   const typeDetector = await createAgent({
-    model: "openai:gpt-4o-mini",
+    model: 'openai:gpt-4o-mini',
     tools: [],
     responseFormat: z.object({
-      contentType: z.enum(['resume', 'job_posting', 'email', 'contract', 'report']),
-      confidence: z.number().min(0).max(1)
-    })
+      contentType: z.enum([
+        'resume',
+        'job_posting',
+        'email',
+        'contract',
+        'report',
+      ]),
+      confidence: z.number().min(0).max(1),
+    }),
   });
 
   const result = await typeDetector.invoke({
-    messages: [new HumanMessage(`Determine the content type of this text: ${text.substring(0, 500)}...`)]
+    messages: [
+      new HumanMessage(
+        `Determine the content type of this text: ${text.substring(0, 500)}...`
+      ),
+    ],
   });
 
   return result.structuredResponse.contentType;
@@ -812,52 +869,60 @@ const schemaMap = {
     email: z.string().email().optional(),
     phone: z.string().optional(),
     skills: z.array(z.string()),
-    experience: z.array(z.object({
-      company: z.string(),
-      position: z.string(),
-      duration: z.string(),
-      description: z.string()
-    })),
-    education: z.array(z.object({
-      institution: z.string(),
-      degree: z.string(),
-      year: z.number().optional()
-    }))
+    experience: z.array(
+      z.object({
+        company: z.string(),
+        position: z.string(),
+        duration: z.string(),
+        description: z.string(),
+      })
+    ),
+    education: z.array(
+      z.object({
+        institution: z.string(),
+        degree: z.string(),
+        year: z.number().optional(),
+      })
+    ),
   }),
-  
+
   job_posting: z.object({
     title: z.string(),
     company: z.string(),
     location: z.string().optional(),
-    salary: z.object({
-      min: z.number().optional(),
-      max: z.number().optional(),
-      currency: z.string().default("USD")
-    }).optional(),
+    salary: z
+      .object({
+        min: z.number().optional(),
+        max: z.number().optional(),
+        currency: z.string().default('USD'),
+      })
+      .optional(),
     requirements: z.array(z.string()),
     responsibilities: z.array(z.string()),
-    benefits: z.array(z.string()).optional()
+    benefits: z.array(z.string()).optional(),
   }),
-  
+
   // ... other schemas
 };
 
 const conditionalExtractor = async (text: string) => {
   const contentType = await determineContentType(text);
   const schema = schemaMap[contentType];
-  
+
   if (!schema) {
     throw new Error(`Unsupported content type: ${contentType}`);
   }
 
   const extractor = await createAgent({
-    model: "openai:gpt-4o-mini",
+    model: 'openai:gpt-4o-mini',
     tools: [],
-    responseFormat: schema
+    responseFormat: schema,
   });
 
   return await extractor.invoke({
-    messages: [new HumanMessage(`Extract ${contentType} information from: ${text}`)]
+    messages: [
+      new HumanMessage(`Extract ${contentType} information from: ${text}`),
+    ],
   });
 };
 ```
@@ -876,32 +941,34 @@ class StreamingExtractor {
   async extractFromLargeText(text: string, schema: z.ZodSchema<any>) {
     const chunks = this.chunkText(text);
     const results: any[] = [];
-    
+
     const extractor = await createAgent({
-      model: "openai:gpt-4o-mini",
+      model: 'openai:gpt-4o-mini',
       tools: [],
       responseFormat: z.object({
         entities: z.array(schema),
-        chunkSummary: z.string()
-      })
+        chunkSummary: z.string(),
+      }),
     });
 
     for (let i = 0; i < chunks.length; i++) {
       console.log(`Processing chunk ${i + 1}/${chunks.length}`);
-      
+
       const result = await extractor.invoke({
-        messages: [new HumanMessage(`
+        messages: [
+          new HumanMessage(`
           Extract structured data from this text chunk (${i + 1}/${chunks.length}):
           
           ${chunks[i]}
           
           Focus on entities and provide a brief summary of this chunk.
-        `)]
+        `),
+        ],
       });
 
       results.push({
         chunkIndex: i,
-        ...result.structuredResponse
+        ...result.structuredResponse,
       });
     }
 
@@ -923,20 +990,20 @@ class StreamingExtractor {
 
   private mergeResults(results: any[]): any {
     // Merge entities and combine summaries
-    const allEntities = results.flatMap(r => r.entities);
-    const combinedSummary = results.map(r => r.chunkSummary).join(' ');
+    const allEntities = results.flatMap((r) => r.entities);
+    const combinedSummary = results.map((r) => r.chunkSummary).join(' ');
 
     return {
       entities: this.deduplicateEntities(allEntities),
       fullSummary: combinedSummary,
-      chunkCount: results.length
+      chunkCount: results.length,
     };
   }
 
   private deduplicateEntities(entities: any[]): any[] {
     // Simple deduplication based on key fields
     const seen = new Set();
-    return entities.filter(entity => {
+    return entities.filter((entity) => {
       const key = JSON.stringify(entity);
       if (seen.has(key)) return false;
       seen.add(key);
@@ -964,7 +1031,10 @@ class BatchExtractor {
     private concurrency: number = 3
   ) {}
 
-  async extractBatch(texts: string[], schema: z.ZodSchema<any>): Promise<{
+  async extractBatch(
+    texts: string[],
+    schema: z.ZodSchema<any>
+  ): Promise<{
     results: Array<{ text: string; data: any; success: boolean }>;
     summary: { total: number; successful: number; failed: number };
   }> {
@@ -976,26 +1046,26 @@ class BatchExtractor {
       const batchPromises = batch.map(async (text, index) => {
         try {
           const extractor = await createAgent({
-            model: "openai:gpt-4o-mini",
+            model: 'openai:gpt-4o-mini',
             tools: [],
-            responseFormat: schema
+            responseFormat: schema,
           });
 
           const result = await extractor.invoke({
-            messages: [new HumanMessage(`Extract data from: ${text}`)]
+            messages: [new HumanMessage(`Extract data from: ${text}`)],
           });
 
           return {
             text,
             data: result.structuredResponse,
-            success: true
+            success: true,
           };
         } catch (error) {
           return {
             text,
             data: null,
             success: false,
-            error: error.message
+            error: error.message,
           };
         }
       });
@@ -1008,9 +1078,9 @@ class BatchExtractor {
       results: allResults,
       summary: {
         total: allResults.length,
-        successful: allResults.filter(r => r.success).length,
-        failed: allResults.filter(r => !r.success).length
-      }
+        successful: allResults.filter((r) => r.success).length,
+        failed: allResults.filter((r) => !r.success).length,
+      },
     };
   }
 
@@ -1025,7 +1095,9 @@ class BatchExtractor {
 
 // Usage
 const batchExtractor = new BatchExtractor(5, 3);
-const texts = [/* array of texts to process */];
+const texts = [
+  /* array of texts to process */
+];
 const batchResults = await batchExtractor.extractBatch(texts, PersonSchema);
 ```
 
@@ -1034,8 +1106,11 @@ const batchResults = await batchExtractor.extractBatch(texts, PersonSchema);
 ```typescript
 class CachedExtractor {
   private cache = new Map<string, any>();
-  
-  constructor(private baseExtractor: any, private ttl: number = 3600000) {} // 1 hour TTL
+
+  constructor(
+    private baseExtractor: any,
+    private ttl: number = 3600000
+  ) {} // 1 hour TTL
 
   async extract(text: string): Promise<any> {
     const key = this.generateKey(text);
@@ -1046,10 +1121,10 @@ class CachedExtractor {
     }
 
     const data = await this.baseExtractor.extract(text);
-    
+
     this.cache.set(key, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     return data;
@@ -1081,49 +1156,51 @@ const InvoiceProcessingSystem = {
   schema: z.object({
     header: z.object({
       invoiceNumber: z.string(),
-      date: z.string().describe("Invoice date in YYYY-MM-DD format"),
-      dueDate: z.string().optional().describe("Due date in YYYY-MM-DD format"),
-      type: z.enum(['standard', 'credit_note', 'debit_note', 'proforma'])
+      date: z.string().describe('Invoice date in YYYY-MM-DD format'),
+      dueDate: z.string().optional().describe('Due date in YYYY-MM-DD format'),
+      type: z.enum(['standard', 'credit_note', 'debit_note', 'proforma']),
     }),
-    
+
     vendor: z.object({
       name: z.string(),
       address: z.string().optional(),
       email: z.string().email().optional(),
       phone: z.string().optional(),
-      taxId: z.string().optional()
+      taxId: z.string().optional(),
     }),
-    
+
     client: z.object({
       name: z.string(),
       address: z.string().optional(),
       email: z.string().email().optional(),
-      purchaseOrder: z.string().optional()
+      purchaseOrder: z.string().optional(),
     }),
-    
-    lineItems: z.array(z.object({
-      description: z.string(),
-      quantity: z.number().positive(),
-      unitPrice: z.number(),
-      total: z.number(),
-      taxRate: z.number().optional(),
-      category: z.string().optional()
-    })),
-    
+
+    lineItems: z.array(
+      z.object({
+        description: z.string(),
+        quantity: z.number().positive(),
+        unitPrice: z.number(),
+        total: z.number(),
+        taxRate: z.number().optional(),
+        category: z.string().optional(),
+      })
+    ),
+
     totals: z.object({
       subtotal: z.number(),
       tax: z.number().optional(),
       total: z.number(),
-      currency: z.string().default("USD")
+      currency: z.string().default('USD'),
     }),
-    
+
     paymentTerms: z.string().optional(),
-    notes: z.string().optional()
+    notes: z.string().optional(),
   }),
 
   async processInvoice(invoiceText: string) {
     const processor = await createAgent({
-      model: "openai:gpt-4o",
+      model: 'openai:gpt-4o',
       tools: [],
       responseFormat: this.schema,
       systemPrompt: `You are an expert invoice processing system.
@@ -1134,11 +1211,11 @@ const InvoiceProcessingSystem = {
       - Identify vendor and client information
       - Extract all line items with quantities and prices
       
-      Be precise with numbers and dates. If information is unclear, mark as optional.`
+      Be precise with numbers and dates. If information is unclear, mark as optional.`,
     });
 
     const result = await processor.invoke({
-      messages: [new HumanMessage(`Process this invoice:\n\n${invoiceText}`)]
+      messages: [new HumanMessage(`Process this invoice:\n\n${invoiceText}`)],
     });
 
     // Validate business rules
@@ -1147,32 +1224,38 @@ const InvoiceProcessingSystem = {
 
   validateInvoice(invoice: any) {
     const errors: string[] = [];
-    
+
     // Validate total calculation
-    const calculatedSubtotal = invoice.lineItems.reduce((sum, item) => sum + item.total, 0);
+    const calculatedSubtotal = invoice.lineItems.reduce(
+      (sum, item) => sum + item.total,
+      0
+    );
     if (Math.abs(calculatedSubtotal - invoice.totals.subtotal) > 0.01) {
-      errors.push("Subtotal calculation mismatch");
+      errors.push('Subtotal calculation mismatch');
     }
-    
+
     // Validate dates
-    if (invoice.header.dueDate && invoice.header.dueDate < invoice.header.date) {
-      errors.push("Due date cannot be before invoice date");
+    if (
+      invoice.header.dueDate &&
+      invoice.header.dueDate < invoice.header.date
+    ) {
+      errors.push('Due date cannot be before invoice date');
     }
-    
+
     return {
       invoice,
       isValid: errors.length === 0,
-      errors
+      errors,
     };
-  }
+  },
 };
 
 // Usage
 const invoiceResult = await InvoiceProcessingSystem.processInvoice(invoiceText);
 if (invoiceResult.isValid) {
-  console.log("Invoice processed successfully:", invoiceResult.invoice);
+  console.log('Invoice processed successfully:', invoiceResult.invoice);
 } else {
-  console.log("Validation errors:", invoiceResult.errors);
+  console.log('Validation errors:', invoiceResult.errors);
 }
 ```
 
@@ -1188,54 +1271,81 @@ const ResumeParser = {
       location: z.string().optional(),
       linkedin: z.string().url().optional(),
       github: z.string().url().optional(),
-      website: z.string().url().optional()
+      website: z.string().url().optional(),
     }),
-    
+
     summary: z.string().optional(),
-    
-    experience: z.array(z.object({
-      company: z.string(),
-      position: z.string(),
-      startDate: z.string().describe("Start date in YYYY-MM format"),
-      endDate: z.string().optional().describe("End date in YYYY-MM format or 'Present'"),
-      location: z.string().optional(),
-      description: z.string(),
-      achievements: z.array(z.string()).optional()
-    })),
-    
-    education: z.array(z.object({
-      institution: z.string(),
-      degree: z.string(),
-      field: z.string().optional(),
-      graduationDate: z.string().optional().describe("Graduation date in YYYY-MM format"),
-      gpa: z.number().optional(),
-      honors: z.array(z.string()).optional()
-    })),
-    
+
+    experience: z.array(
+      z.object({
+        company: z.string(),
+        position: z.string(),
+        startDate: z.string().describe('Start date in YYYY-MM format'),
+        endDate: z
+          .string()
+          .optional()
+          .describe("End date in YYYY-MM format or 'Present'"),
+        location: z.string().optional(),
+        description: z.string(),
+        achievements: z.array(z.string()).optional(),
+      })
+    ),
+
+    education: z.array(
+      z.object({
+        institution: z.string(),
+        degree: z.string(),
+        field: z.string().optional(),
+        graduationDate: z
+          .string()
+          .optional()
+          .describe('Graduation date in YYYY-MM format'),
+        gpa: z.number().optional(),
+        honors: z.array(z.string()).optional(),
+      })
+    ),
+
     skills: z.object({
       technical: z.array(z.string()).optional(),
-      languages: z.array(z.object({
-        language: z.string(),
-        proficiency: z.enum(['native', 'fluent', 'conversational', 'basic'])
-      })).optional(),
-      certifications: z.array(z.object({
-        name: z.string(),
-        issuer: z.string().optional(),
-        date: z.string().optional()
-      })).optional()
+      languages: z
+        .array(
+          z.object({
+            language: z.string(),
+            proficiency: z.enum([
+              'native',
+              'fluent',
+              'conversational',
+              'basic',
+            ]),
+          })
+        )
+        .optional(),
+      certifications: z
+        .array(
+          z.object({
+            name: z.string(),
+            issuer: z.string().optional(),
+            date: z.string().optional(),
+          })
+        )
+        .optional(),
     }),
-    
-    projects: z.array(z.object({
-      name: z.string(),
-      description: z.string(),
-      technologies: z.array(z.string()).optional(),
-      url: z.string().url().optional()
-    })).optional()
+
+    projects: z
+      .array(
+        z.object({
+          name: z.string(),
+          description: z.string(),
+          technologies: z.array(z.string()).optional(),
+          url: z.string().url().optional(),
+        })
+      )
+      .optional(),
   }),
 
   async parseResume(resumeText: string) {
     const parser = await createAgent({
-      model: "openai:gpt-4o",
+      model: 'openai:gpt-4o',
       tools: [],
       responseFormat: this.schema,
       systemPrompt: `You are an expert resume parser.
@@ -1246,11 +1356,11 @@ const ResumeParser = {
       - Separate achievements from job descriptions
       - Categorize skills appropriately
       
-      Be thorough but only extract information that is clearly present.`
+      Be thorough but only extract information that is clearly present.`,
     });
 
     const result = await parser.invoke({
-      messages: [new HumanMessage(`Parse this resume:\n\n${resumeText}`)]
+      messages: [new HumanMessage(`Parse this resume:\n\n${resumeText}`)],
     });
 
     return this.enrichResumeData(result.structuredResponse);
@@ -1259,33 +1369,36 @@ const ResumeParser = {
   enrichResumeData(resume: any) {
     // Calculate experience summary
     const totalExperience = this.calculateExperience(resume.experience);
-    
+
     // Extract skill categories
     const skillAnalysis = this.analyzeSkills(resume.skills.technical || []);
-    
+
     return {
       ...resume,
       metadata: {
         totalExperience,
         skillAnalysis,
-        completenessScore: this.calculateCompleteness(resume)
-      }
+        completenessScore: this.calculateCompleteness(resume),
+      },
     };
   },
 
   calculateExperience(experiences: any[]): string {
     // Implementation to calculate total years of experience
     let totalMonths = 0;
-    
-    experiences.forEach(exp => {
-      const start = new Date(exp.startDate + "-01");
-      const end = exp.endDate === "Present" ? new Date() : new Date(exp.endDate + "-01");
-      totalMonths += (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+
+    experiences.forEach((exp) => {
+      const start = new Date(exp.startDate + '-01');
+      const end =
+        exp.endDate === 'Present' ? new Date() : new Date(exp.endDate + '-01');
+      totalMonths +=
+        (end.getFullYear() - start.getFullYear()) * 12 +
+        (end.getMonth() - start.getMonth());
     });
-    
+
     const years = Math.floor(totalMonths / 12);
     const months = totalMonths % 12;
-    
+
     return `${years} years${months > 0 ? `, ${months} months` : ''}`;
   },
 
@@ -1295,13 +1408,13 @@ const ResumeParser = {
       programming: ['javascript', 'python', 'java', 'c++', 'c#'],
       frameworks: ['react', 'vue', 'angular', 'django', 'flask'],
       databases: ['mysql', 'postgresql', 'mongodb', 'redis'],
-      cloud: ['aws', 'azure', 'gcp', 'docker', 'kubernetes']
+      cloud: ['aws', 'azure', 'gcp', 'docker', 'kubernetes'],
     };
 
     const result = {};
     for (const [category, keywords] of Object.entries(categories)) {
-      result[category] = skills.filter(skill => 
-        keywords.some(keyword => skill.toLowerCase().includes(keyword))
+      result[category] = skills.filter((skill) =>
+        keywords.some((keyword) => skill.toLowerCase().includes(keyword))
       );
     }
 
@@ -1314,10 +1427,10 @@ const ResumeParser = {
       'personalInfo.email',
       'experience',
       'education',
-      'skills'
+      'skills',
     ];
 
-    const presentFields = requiredFields.filter(field => {
+    const presentFields = requiredFields.filter((field) => {
       const value = this.getNestedValue(resume, field);
       return value && (Array.isArray(value) ? value.length > 0 : true);
     });
@@ -1327,14 +1440,14 @@ const ResumeParser = {
 
   getNestedValue(obj: any, path: string): any {
     return path.split('.').reduce((current, key) => current?.[key], obj);
-  }
+  },
 };
 
 // Usage
 const resumeData = await ResumeParser.parseResume(resumeText);
-console.log("Parsed resume:", resumeData);
-console.log("Experience:", resumeData.metadata.totalExperience);
-console.log("Completeness:", resumeData.metadata.completenessScore + "%");
+console.log('Parsed resume:', resumeData);
+console.log('Experience:', resumeData.metadata.totalExperience);
+console.log('Completeness:', resumeData.metadata.completenessScore + '%');
 ```
 
 ## Testing and Validation
@@ -1348,34 +1461,35 @@ describe('Structured Data Extraction', () => {
   const testCases = [
     {
       name: 'Complete person information',
-      input: 'Dr. Sarah Johnson, 35, is a cardiologist at Mayo Clinic. Contact: sarah.j@email.com',
+      input:
+        'Dr. Sarah Johnson, 35, is a cardiologist at Mayo Clinic. Contact: sarah.j@email.com',
       expected: {
         name: 'Dr. Sarah Johnson',
         age: 35,
         profession: 'cardiologist',
         email: 'sarah.j@email.com',
-        workplace: 'Mayo Clinic'
-      }
+        workplace: 'Mayo Clinic',
+      },
     },
     {
       name: 'Partial information',
       input: 'John works in marketing but prefers not to share his age.',
       expected: {
         name: 'John',
-        profession: 'marketing'
+        profession: 'marketing',
         // age should not be present
-      }
+      },
     },
     {
       name: 'No relevant information',
       input: 'The weather is sunny today with temperatures reaching 80°F.',
-      expected: {}
-    }
+      expected: {},
+    },
   ];
 
   test.each(testCases)('$name', async ({ input, expected }) => {
     const result = await extractionAgent.invoke({
-      messages: [new HumanMessage(`Extract person info: ${input}`)]
+      messages: [new HumanMessage(`Extract person info: ${input}`)],
     });
 
     const extracted = result.structuredResponse;
@@ -1394,21 +1508,17 @@ describe('Structured Data Extraction', () => {
   });
 
   test('Schema validation', async () => {
-    const invalidData = { name: 123, age: "thirty" }; // Invalid types
-    
+    const invalidData = { name: 123, age: 'thirty' }; // Invalid types
+
     expect(() => PersonSchema.parse(invalidData)).toThrow();
   });
 
   test('Error handling', async () => {
-    const extractor = new ValidatedExtractor(
-      extractionAgent,
-      PersonSchema,
-      2
-    );
+    const extractor = new ValidatedExtractor(extractionAgent, PersonSchema, 2);
 
     // Test with problematic input
-    const result = await extractor.extract("Garbled text #@$%^&*()");
-    
+    const result = await extractor.extract('Garbled text #@$%^&*()');
+
     if (!result.data) {
       expect(result.errors.length).toBeGreaterThan(0);
       expect(result.attempts).toBeLessThanOrEqual(2);
@@ -1426,7 +1536,7 @@ class ExtractionBenchmark {
       accuracy: 0,
       averageLatency: 0,
       totalCost: 0,
-      errors: []
+      errors: [],
     };
 
     const startTime = Date.now();
@@ -1436,25 +1546,27 @@ class ExtractionBenchmark {
     for (const testCase of testData) {
       try {
         const caseStartTime = Date.now();
-        
+
         const result = await extractionAgent.invoke({
-          messages: [new HumanMessage(`Extract data: ${testCase.text}`)]
+          messages: [new HumanMessage(`Extract data: ${testCase.text}`)],
         });
 
         const latency = Date.now() - caseStartTime;
-        const isCorrect = this.compareResults(result.structuredResponse, testCase.expected);
-        
+        const isCorrect = this.compareResults(
+          result.structuredResponse,
+          testCase.expected
+        );
+
         if (isCorrect) correct++;
-        
+
         // Track token usage if available
         if (result.usage) {
           totalTokens += result.usage.total_tokens;
         }
-
       } catch (error) {
         results.errors.push({
           input: testCase.text,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -1468,13 +1580,14 @@ class ExtractionBenchmark {
 
   private compareResults(actual: any, expected: any): boolean {
     // Implement semantic comparison logic
-    const actualKeys = Object.keys(actual).filter(k => actual[k] != null);
+    const actualKeys = Object.keys(actual).filter((k) => actual[k] != null);
     const expectedKeys = Object.keys(expected);
-    
-    const keyMatch = actualKeys.length === expectedKeys.length &&
-                    actualKeys.every(key => expectedKeys.includes(key));
-    
-    const valueMatch = expectedKeys.every(key => 
+
+    const keyMatch =
+      actualKeys.length === expectedKeys.length &&
+      actualKeys.every((key) => expectedKeys.includes(key));
+
+    const valueMatch = expectedKeys.every((key) =>
       this.compareValues(actual[key], expected[key])
     );
 
@@ -1483,11 +1596,11 @@ class ExtractionBenchmark {
 
   private compareValues(actual: any, expected: any): boolean {
     if (typeof actual !== typeof expected) return false;
-    
+
     if (typeof actual === 'string') {
       return actual.toLowerCase().trim() === expected.toLowerCase().trim();
     }
-    
+
     return actual === expected;
   }
 
@@ -1500,7 +1613,9 @@ class ExtractionBenchmark {
 
 // Usage
 const benchmark = new ExtractionBenchmark();
-const testData = [/* your test cases */];
+const testData = [
+  /* your test cases */
+];
 const benchmarkResults = await benchmark.runBenchmark(testData);
 
 console.log(`Accuracy: ${(benchmarkResults.accuracy * 100).toFixed(1)}%`);
@@ -1518,15 +1633,15 @@ process.env.DEBUG = 'langchain:*';
 
 // Debug configuration for extraction
 const debugExtractionAgent = await createAgent({
-  model: "openai:gpt-4o-mini",
+  model: 'openai:gpt-4o-mini',
   tools: [],
   responseFormat: PersonSchema,
   debug: {
     level: 'verbose',
     logPrompts: true,
     logResponses: true,
-    logValidation: true
-  }
+    logValidation: true,
+  },
 });
 
 // Test extraction with debug info
@@ -1534,31 +1649,30 @@ const debugTest = async (text: string) => {
   console.log('=== DEBUG EXTRACTION TEST ===');
   console.log('Input text:', text);
   console.log('Schema:', PersonSchema._def);
-  
+
   try {
     const result = await debugExtractionAgent.invoke({
-      messages: [new HumanMessage(`Extract: ${text}`)]
+      messages: [new HumanMessage(`Extract: ${text}`)],
     });
-    
+
     console.log('Raw response:', result);
     console.log('Structured response:', result.structuredResponse);
     console.log('Validation successful');
-    
   } catch (error) {
     console.error('Extraction failed:', error.message);
-    
+
     if (error instanceof z.ZodError) {
       console.error('Validation errors:', error.errors);
     }
   }
-  
+
   console.log('=== END DEBUG TEST ===');
 };
 
 // Debug common issues
-await debugTest("John Smith is 30"); // Should work
-await debugTest("The weather is nice"); // Should return empty/null
-await debugTest("Dr. Jane Doe, age unknown"); // Test optional fields
+await debugTest('John Smith is 30'); // Should work
+await debugTest('The weather is nice'); // Should return empty/null
+await debugTest('Dr. Jane Doe, age unknown'); // Test optional fields
 ```
 
 ### 23. Common Issues and Solutions
@@ -1567,45 +1681,53 @@ await debugTest("Dr. Jane Doe, age unknown"); // Test optional fields
 const TroubleshootingGuide = {
   // Issue: Model returns null/empty results
   async diagnosePoorExtraction(text: string, schema: z.ZodSchema<any>) {
-    console.log("=== EXTRACTION DIAGNOSIS ===");
-    
+    console.log('=== EXTRACTION DIAGNOSIS ===');
+
     // Check if text contains relevant information
     const contentAnalyzer = await createAgent({
-      model: "openai:gpt-4o-mini",
+      model: 'openai:gpt-4o-mini',
       tools: [],
       responseFormat: z.object({
         hasRelevantInfo: z.boolean(),
         detectedEntities: z.array(z.string()),
-        confidence: z.number().min(0).max(1)
-      })
+        confidence: z.number().min(0).max(1),
+      }),
     });
 
     const analysis = await contentAnalyzer.invoke({
-      messages: [new HumanMessage(`Analyze if this text contains extractable information: ${text}`)]
+      messages: [
+        new HumanMessage(
+          `Analyze if this text contains extractable information: ${text}`
+        ),
+      ],
     });
 
-    console.log("Content analysis:", analysis.structuredResponse);
+    console.log('Content analysis:', analysis.structuredResponse);
 
     // Test with more explicit prompt
     const explicitExtractor = await createAgent({
-      model: "openai:gpt-4o-mini",
+      model: 'openai:gpt-4o-mini',
       tools: [],
       responseFormat: schema,
       systemPrompt: `You are an expert data extractor. 
       IMPORTANT: Only extract information that is explicitly mentioned.
       If no relevant information exists, return an empty object or null values.
-      Do not guess or infer information that isn't clearly stated.`
+      Do not guess or infer information that isn't clearly stated.`,
     });
 
     const result = await explicitExtractor.invoke({
-      messages: [new HumanMessage(`Extract structured data from this text. Be precise and only extract what is clearly mentioned: ${text}`)]
+      messages: [
+        new HumanMessage(
+          `Extract structured data from this text. Be precise and only extract what is clearly mentioned: ${text}`
+        ),
+      ],
     });
 
-    console.log("Explicit extraction result:", result.structuredResponse);
-    
+    console.log('Explicit extraction result:', result.structuredResponse);
+
     return {
       contentAnalysis: analysis.structuredResponse,
-      extractionResult: result.structuredResponse
+      extractionResult: result.structuredResponse,
     };
   },
 
@@ -1614,28 +1736,27 @@ const TroubleshootingGuide = {
     try {
       // Test with relaxed validation
       const relaxedSchema = this.makeSchemaOptional(schema);
-      
+
       const relaxedExtractor = await createAgent({
-        model: "openai:gpt-4o-mini",
+        model: 'openai:gpt-4o-mini',
         tools: [],
-        responseFormat: relaxedSchema
+        responseFormat: relaxedSchema,
       });
 
       const result = await relaxedExtractor.invoke({
-        messages: [new HumanMessage(`Extract: ${text}`)]
+        messages: [new HumanMessage(`Extract: ${text}`)],
       });
 
-      console.log("Relaxed schema result:", result.structuredResponse);
-      
+      console.log('Relaxed schema result:', result.structuredResponse);
+
       // Now try to validate with original schema
       const validated = schema.parse(result.structuredResponse);
-      console.log("Original schema validation successful");
-      
+      console.log('Original schema validation successful');
     } catch (error) {
-      console.error("Schema validation failed:", error.message);
-      
+      console.error('Schema validation failed:', error.message);
+
       if (error instanceof z.ZodError) {
-        error.errors.forEach(err => {
+        error.errors.forEach((err) => {
           console.error(`Field: ${err.path.join('.')}, Issue: ${err.message}`);
         });
       }
@@ -1657,49 +1778,49 @@ const TroubleshootingGuide = {
   // Issue: Inconsistent results
   async testConsistency(text: string, iterations: number = 5) {
     const results = [];
-    
+
     for (let i = 0; i < iterations; i++) {
       const result = await extractionAgent.invoke({
-        messages: [new HumanMessage(`Extract: ${text}`)]
+        messages: [new HumanMessage(`Extract: ${text}`)],
       });
       results.push(result.structuredResponse);
     }
-    
+
     // Analyze consistency
     const consistency = this.analyzeConsistency(results);
-    console.log("Consistency analysis:", consistency);
-    
+    console.log('Consistency analysis:', consistency);
+
     return results;
   },
 
   analyzeConsistency(results: any[]): any {
     const fieldConsistency = {};
-    
+
     // Get all possible fields
     const allFields = new Set();
-    results.forEach(result => {
-      Object.keys(result || {}).forEach(key => allFields.add(key));
+    results.forEach((result) => {
+      Object.keys(result || {}).forEach((key) => allFields.add(key));
     });
-    
+
     // Check consistency for each field
-    allFields.forEach(field => {
-      const values = results.map(r => r?.[field]);
-      const uniqueValues = new Set(values.filter(v => v != null));
-      
+    allFields.forEach((field) => {
+      const values = results.map((r) => r?.[field]);
+      const uniqueValues = new Set(values.filter((v) => v != null));
+
       fieldConsistency[field] = {
-        presentCount: values.filter(v => v != null).length,
+        presentCount: values.filter((v) => v != null).length,
         uniqueValueCount: uniqueValues.size,
-        consistency: uniqueValues.size <= 1 ? 'high' : 'low'
+        consistency: uniqueValues.size <= 1 ? 'high' : 'low',
       };
     });
-    
+
     return fieldConsistency;
-  }
+  },
 };
 
 // Usage
 await TroubleshootingGuide.diagnosePoorExtraction(
-  "Some problematic text here", 
+  'Some problematic text here',
   PersonSchema
 );
 ```
@@ -1707,6 +1828,7 @@ await TroubleshootingGuide.diagnosePoorExtraction(
 This comprehensive guide covers all aspects of structured data extraction with LangChain.js 1.0, from basic schemas to production-ready systems with error handling, performance optimization, and debugging capabilities. The examples are practical and immediately usable for real-world applications.
 
 Key takeaways:
+
 - Use `createAgent` with `responseFormat` for the simplest approach
 - Define schemas carefully with optional fields to prevent hallucination
 - Implement reference examples to improve extraction quality

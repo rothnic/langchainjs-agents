@@ -13,22 +13,30 @@ vi.mock('@langchain/openai', () => ({
 vi.mock('langchain', () => ({
   createAgent: vi.fn().mockResolvedValue({
     invoke: vi.fn().mockResolvedValue({
-      messages: [{
-        content: JSON.stringify({
-          title: 'Test Page',
-          description: 'Test description',
-          content: [{ type: 'paragraph', text: 'Test content' }],
-          headings: [{ level: 1, text: 'Test Heading' }],
-          links: [{ text: 'Test Link', url: 'https://example.com', isExternal: true }],
-          images: [],
-          metadata: {
-            url: 'https://example.com',
-            scrapedAt: '2023-10-05T10:00:00Z',
-            wordCount: 10
-          }
-        })
-      }]
-    })
+      messages: [
+        {
+          content: JSON.stringify({
+            title: 'Test Page',
+            description: 'Test description',
+            content: [{ type: 'paragraph', text: 'Test content' }],
+            headings: [{ level: 1, text: 'Test Heading' }],
+            links: [
+              {
+                text: 'Test Link',
+                url: 'https://example.com',
+                isExternal: true,
+              },
+            ],
+            images: [],
+            metadata: {
+              url: 'https://example.com',
+              scrapedAt: '2023-10-05T10:00:00Z',
+              wordCount: 10,
+            },
+          }),
+        },
+      ],
+    }),
   }),
   tool: vi.fn(),
   initChatModel: vi.fn(),
@@ -101,11 +109,15 @@ describe('StructuredScrapingAgent - Unit Tests', () => {
     it('should handle agent errors gracefully', async () => {
       // Mock createAgent to throw an error
       const { createAgent } = await import('langchain');
-      (createAgent as any).mockRejectedValueOnce(new Error('Agent creation failed'));
+      (createAgent as any).mockRejectedValueOnce(
+        new Error('Agent creation failed')
+      );
 
       const failingAgent = new StructuredScrapingAgent();
 
-      await expect(failingAgent.scrape('https://example.com')).rejects.toThrow('Agent creation failed');
+      await expect(failingAgent.scrape('https://example.com')).rejects.toThrow(
+        'Agent creation failed'
+      );
     });
   });
 

@@ -44,7 +44,7 @@ const agent = new StructuredScrapingAgent();
 // Extract structured data from a webpage using tools
 const result = await agent.execute({
   url: 'https://example.com',
-  options: { timeout: 10000 }
+  options: { timeout: 10000 },
 });
 
 console.log('Title:', result.title);
@@ -53,6 +53,7 @@ console.log('Content blocks:', result.content.length);
 ```
 
 The agent uses specialized tools to:
+
 - **Load pages** and analyze content structure
 - **Extract specific sections** using CSS selectors
 - **Navigate links** and detect external/internal references
@@ -70,9 +71,11 @@ import { z } from 'zod';
 
 const MyAgentInputSchema = z.object({
   query: z.string().describe('The query to process'),
-  options: z.object({
-    timeout: z.number().default(30000)
-  }).optional()
+  options: z
+    .object({
+      timeout: z.number().default(30000),
+    })
+    .optional(),
 });
 
 export class MyCustomAgent extends BaseAgent {
@@ -94,24 +97,24 @@ export class MyCustomAgent extends BaseAgent {
       {
         name: 'search',
         description: 'Search for information',
-        schema: z.object({ query: z.string() })
+        schema: z.object({ query: z.string() }),
       }
     );
 
     // Create agent with tools
     const agent = await createAgent({
       model: 'openai:gpt-4o-mini',
-      tools: [searchTool]
+      tools: [searchTool],
     });
 
     // Execute agent
     const result = await agent.invoke({
-      messages: [{ role: 'user', content: input.query }]
+      messages: [{ role: 'user', content: input.query }],
     });
 
     return {
       result: result.messages[result.messages.length - 1].content,
-      processedAt: new Date().toISOString()
+      processedAt: new Date().toISOString(),
     };
   }
 }
@@ -131,13 +134,13 @@ const getPageOutline = tool(
     return {
       title: 'Page Title',
       headings: ['H1', 'H2', 'H3'],
-      sections: ['header', 'main', 'footer']
+      sections: ['header', 'main', 'footer'],
     };
   },
   {
     name: 'getPageOutline',
     description: 'Get page structure outline',
-    schema: z.object({ url: z.string().url() })
+    schema: z.object({ url: z.string().url() }),
   }
 );
 
@@ -145,11 +148,11 @@ const getPageOutline = tool(
 const loadFullPage = tool(
   async ({ url }) => {
     // Loads entire page - inefficient!
-    return await fetch(url).then(r => r.text());
+    return await fetch(url).then((r) => r.text());
   },
   {
     name: 'loadFullPage',
-    schema: z.object({ url: z.string() })
+    schema: z.object({ url: z.string() }),
   }
 );
 ```
@@ -173,20 +176,22 @@ const extractSectionContent = tool(
     description: 'Extract content from specific section',
     schema: z.object({
       url: z.string().url(),
-      section: z.string()
-    })
+      section: z.string(),
+    }),
   }
 );
 
 // Create agent with tools
 const agent = await createAgent({
   model: 'openai:gpt-4o-mini',
-  tools: [getPageOutline, extractSectionContent]
+  tools: [getPageOutline, extractSectionContent],
 });
 
 // Use agent
 const result = await agent.invoke({
-  messages: [{ role: 'user', content: 'Analyze this webpage: https://example.com' }]
+  messages: [
+    { role: 'user', content: 'Analyze this webpage: https://example.com' },
+  ],
 });
 ```
 
@@ -230,8 +235,8 @@ const navigationTool = tool(
     description: 'Navigate to different page sections',
     schema: z.object({
       url: z.string().url(),
-      direction: z.enum(['next', 'previous', 'up', 'down'])
-    })
+      direction: z.enum(['next', 'previous', 'up', 'down']),
+    }),
   }
 );
 
@@ -245,8 +250,8 @@ const analysisTool = tool(
     description: 'Analyze content characteristics',
     schema: z.object({
       content: z.string(),
-      analysisType: z.enum(['sentiment', 'topics', 'entities'])
-    })
+      analysisType: z.enum(['sentiment', 'topics', 'entities']),
+    }),
   }
 );
 ```
@@ -274,7 +279,7 @@ class ContentProcessingAgent {
       outline,
       content: mainContent,
       analysis,
-      links
+      links,
     };
   }
 }
@@ -294,11 +299,13 @@ class ResilientToolAgent {
         console.warn(`Tool call failed (attempt ${attempt}):`, error.message);
 
         if (attempt === maxRetries) {
-          throw new Error(`Tool failed after ${maxRetries} attempts: ${error.message}`);
+          throw new Error(
+            `Tool failed after ${maxRetries} attempts: ${error.message}`
+          );
         }
 
         // Wait before retry
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
       }
     }
   }
@@ -324,12 +331,12 @@ describe('WebScrapingAgent', () => {
     // Mock tools
     const mockGetOutline = vi.fn().mockResolvedValue({
       title: 'Test Page',
-      sections: ['header', 'main', 'footer']
+      sections: ['header', 'main', 'footer'],
     });
 
     const mockExtractContent = vi.fn().mockResolvedValue({
       content: 'Main content...',
-      wordCount: 150
+      wordCount: 150,
     });
 
     // Create agent with mocked tools
@@ -338,17 +345,17 @@ describe('WebScrapingAgent', () => {
       tools: [
         tool(mockGetOutline, {
           name: 'getPageOutline',
-          schema: z.object({ url: z.string() })
+          schema: z.object({ url: z.string() }),
         }),
         tool(mockExtractContent, {
           name: 'extractSectionContent',
-          schema: z.object({ url: z.string(), section: z.string() })
-        })
-      ]
+          schema: z.object({ url: z.string(), section: z.string() }),
+        }),
+      ],
     });
 
     const result = await agent.invoke({
-      messages: [{ role: 'user', content: 'Extract from https://example.com' }]
+      messages: [{ role: 'user', content: 'Extract from https://example.com' }],
     });
 
     expect(mockGetOutline).toHaveBeenCalled();
@@ -363,17 +370,19 @@ describe('WebScrapingAgent', () => {
       tools: [
         tool(failingTool, {
           name: 'failingTool',
-          schema: z.object({})
-        })
-      ]
+          schema: z.object({}),
+        }),
+      ],
     });
 
     const result = await agent.invoke({
-      messages: [{ role: 'user', content: 'Use failing tool' }]
+      messages: [{ role: 'user', content: 'Use failing tool' }],
     });
 
     // Agent should handle the error and respond appropriately
-    expect(result.messages[result.messages.length - 1].content).toContain('error');
+    expect(result.messages[result.messages.length - 1].content).toContain(
+      'error'
+    );
   });
 });
 ```
@@ -388,15 +397,15 @@ describe('WebScrapingAgent Integration', () => {
 
     const agent = new StructuredScrapingAgent();
     const result = await agent.scrape('https://httpbin.org/html', {
-      timeout: 15000
+      timeout: 15000,
     });
 
     expect(result).toMatchObject({
       title: expect.any(String),
       content: expect.any(Array),
       metadata: expect.objectContaining({
-        wordCount: expect.any(Number)
-      })
+        wordCount: expect.any(Number),
+      }),
     });
   });
 });
@@ -405,24 +414,28 @@ describe('WebScrapingAgent Integration', () => {
 ## Best Practices
 
 ### Tool Design
+
 - **Be Specific**: Create specialized tools for specific interactions
 - **Efficient**: Avoid loading full content when outlines suffice
 - **Composable**: Design tools that work well together
 - **Error Handling**: Include proper error handling in tool implementations
 
 ### Agent Architecture
+
 - **Outline First**: Get content structure before detailed extraction
 - **Iterative Processing**: Process content in focused chunks
 - **Logging**: Include comprehensive logging for debugging
 - **Timeouts**: Set reasonable timeouts for tool operations
 
 ### Performance
+
 - **Model Selection**: Use appropriate model sizes for your use case
 - **Caching**: Cache tool results when possible
 - **Batching**: Process multiple items together when appropriate
 - **Monitoring**: Track tool usage and performance metrics
 
 ### Testing
+
 - **Mock Tools**: Use mocks for unit tests to ensure fast, reliable testing
 - **Real API Tests**: Separate integration tests for real tool validation
 - **Edge Cases**: Test malformed inputs, network errors, and timeouts
@@ -442,7 +455,7 @@ const webTools = [
     {
       name: 'getPageOutline',
       description: 'Get page structure outline',
-      schema: z.object({ url: z.string().url() })
+      schema: z.object({ url: z.string().url() }),
     }
   ),
   tool(
@@ -455,10 +468,10 @@ const webTools = [
       description: 'Extract content from specific section',
       schema: z.object({
         url: z.string().url(),
-        section: z.string()
-      })
+        section: z.string(),
+      }),
     }
-  )
+  ),
 ];
 ```
 
@@ -476,10 +489,10 @@ const dataTools = [
       description: 'Process data with specified operation',
       schema: z.object({
         data: z.any(),
-        operation: z.enum(['filter', 'transform', 'analyze'])
-      })
+        operation: z.enum(['filter', 'transform', 'analyze']),
+      }),
     }
-  )
+  ),
 ];
 ```
 

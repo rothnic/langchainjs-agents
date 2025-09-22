@@ -119,7 +119,9 @@ async function main() {
     }
 
     console.log('');
-    console.log('✨ Structured extraction powered by LangChain.js 1.0 withStructuredOutput');
+    console.log(
+      '✨ Structured extraction powered by LangChain.js 1.0 withStructuredOutput'
+    );
   } catch (error) {
     console.error('❌ Extraction failed:');
     console.error(error);

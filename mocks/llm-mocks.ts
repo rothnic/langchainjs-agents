@@ -82,15 +82,18 @@ export const setupHttpMocks = () => {
   });
 
   // Add the get method for axios.get calls
-  (axiosMock as any).get = vi.fn().mockImplementation((url: string, _config?: unknown) => {
-    const mockResponse = mockWebResponses[url as keyof typeof mockWebResponses];
+  (axiosMock as any).get = vi
+    .fn()
+    .mockImplementation((url: string, _config?: unknown) => {
+      const mockResponse =
+        mockWebResponses[url as keyof typeof mockWebResponses];
 
-    if (mockResponse) {
-      return Promise.resolve(mockResponse);
-    }
+      if (mockResponse) {
+        return Promise.resolve(mockResponse);
+      }
 
-    return Promise.reject(new Error(`No mock found for URL: ${url}`));
-  });
+      return Promise.reject(new Error(`No mock found for URL: ${url}`));
+    });
 
   return axiosMock;
 };

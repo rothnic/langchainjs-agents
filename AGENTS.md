@@ -35,8 +35,8 @@ const myTool = tool(
     name: 'myTool',
     description: 'Description of what the tool does',
     schema: z.object({
-      input: z.string().describe('Input parameter description')
-    })
+      input: z.string().describe('Input parameter description'),
+    }),
   }
 );
 
@@ -44,12 +44,12 @@ const myTool = tool(
 const agent = await createAgent({
   model: 'openai:gpt-4o-mini', // Works with OpenRouter
   tools: [myTool],
-  systemPrompt: 'You are a helpful assistant that uses tools to solve tasks.'
+  systemPrompt: 'You are a helpful assistant that uses tools to solve tasks.',
 });
 
 // 3. Use agent
 const result = await agent.invoke({
-  messages: [{ role: 'user', content: 'Use the tool to process: hello world' }]
+  messages: [{ role: 'user', content: 'Use the tool to process: hello world' }],
 });
 
 console.log(result.messages[result.messages.length - 1].content);
@@ -86,8 +86,8 @@ const calculateSum = tool(
     description: 'Add two numbers together',
     schema: z.object({
       a: z.number().describe('First number'),
-      b: z.number().describe('Second number')
-    })
+      b: z.number().describe('Second number'),
+    }),
   }
 );
 
@@ -95,12 +95,12 @@ const calculateSum = tool(
 const agent = await createAgent({
   llm, // Pass the configured LLM instance
   tools: [calculateSum],
-  systemPrompt: 'You are a helpful assistant that uses tools to solve tasks.'
+  systemPrompt: 'You are a helpful assistant that uses tools to solve tasks.',
 });
 
 // Use agent
 const result = await agent.invoke({
-  messages: [{ role: 'user', content: 'Calculate 15 + 27' }]
+  messages: [{ role: 'user', content: 'Calculate 15 + 27' }],
 });
 
 console.log(result.messages[result.messages.length - 1].content);
@@ -124,8 +124,8 @@ const calculateSum = tool(
     description: 'Add two numbers together',
     schema: z.object({
       a: z.number().describe('First number'),
-      b: z.number().describe('Second number')
-    })
+      b: z.number().describe('Second number'),
+    }),
   }
 );
 ```
@@ -147,8 +147,8 @@ const getWeather = tool(
     name: 'getWeather',
     description: 'Get current weather for a city',
     schema: z.object({
-      city: z.string().describe('City name')
-    })
+      city: z.string().describe('City name'),
+    }),
   }
 );
 ```
@@ -169,8 +169,8 @@ const analyzeText = tool(
     name: 'analyzeText',
     description: 'Analyze text for word count and sentence count',
     schema: z.object({
-      text: z.string().describe('Text to analyze')
-    })
+      text: z.string().describe('Text to analyze'),
+    }),
   }
 );
 ```
@@ -183,7 +183,7 @@ const analyzeText = tool(
 const basicAgent = await createAgent({
   model: 'openai:gpt-4o-mini',
   tools: [calculateSum, getWeather],
-  systemPrompt: 'You are a helpful assistant.'
+  systemPrompt: 'You are a helpful assistant.',
 });
 ```
 
@@ -195,13 +195,13 @@ import { z } from 'zod';
 const ResponseSchema = z.object({
   answer: z.string(),
   confidence: z.number().min(0).max(1),
-  sources: z.array(z.string())
+  sources: z.array(z.string()),
 });
 
 const structuredAgent = await createAgent({
   model: 'openai:gpt-4o-mini',
   tools: [getWeather],
-  responseFormat: ResponseSchema
+  responseFormat: ResponseSchema,
 });
 ```
 
@@ -212,7 +212,7 @@ const customPromptAgent = await createAgent({
   model: 'openai:gpt-4o-mini',
   tools: [analyzeText],
   systemPrompt: `You are a text analysis expert.
-  Always provide detailed analysis and suggestions for improvement.`
+  Always provide detailed analysis and suggestions for improvement.`,
 });
 ```
 
@@ -222,15 +222,19 @@ const customPromptAgent = await createAgent({
 const multiToolAgent = await createAgent({
   model: 'openai:gpt-4o-mini',
   tools: [calculateSum, getWeather, analyzeText],
-  systemPrompt: 'You have access to multiple tools. Use them as needed to help users.'
+  systemPrompt:
+    'You have access to multiple tools. Use them as needed to help users.',
 });
 
 // Example usage
 const result = await multiToolAgent.invoke({
-  messages: [{
-    role: 'user',
-    content: 'Calculate 15 + 27, then analyze this text: "Hello world. This is a test."'
-  }]
+  messages: [
+    {
+      role: 'user',
+      content:
+        'Calculate 15 + 27, then analyze this text: "Hello world. This is a test."',
+    },
+  ],
 });
 ```
 
@@ -253,15 +257,15 @@ const robustTool = tool(
     name: 'robustTool',
     description: 'A tool that handles errors gracefully',
     schema: z.object({
-      input: z.string().describe('Input to process')
-    })
+      input: z.string().describe('Input to process'),
+    }),
   }
 );
 
 const errorHandlingAgent = await createAgent({
   model: 'openai:gpt-4o-mini',
   tools: [robustTool],
-  systemPrompt: 'Handle errors gracefully and provide helpful feedback.'
+  systemPrompt: 'Handle errors gracefully and provide helpful feedback.',
 });
 ```
 
@@ -278,8 +282,8 @@ const formatResult = tool(
     name: 'formatResult',
     description: 'Format raw data into a readable format',
     schema: z.object({
-      rawData: z.any().describe('Raw data to format')
-    })
+      rawData: z.any().describe('Raw data to format'),
+    }),
   }
 );
 
@@ -292,15 +296,15 @@ const getData = tool(
     name: 'getData',
     description: 'Get data from a source',
     schema: z.object({
-      source: z.string().describe('Data source')
-    })
+      source: z.string().describe('Data source'),
+    }),
   }
 );
 
 const chainingAgent = await createAgent({
   model: 'openai:gpt-4o-mini',
   tools: [getData, formatResult],
-  systemPrompt: 'Use tools in sequence to get and format data.'
+  systemPrompt: 'Use tools in sequence to get and format data.',
 });
 ```
 
@@ -318,21 +322,21 @@ const loadPage = tool(
   async ({ url }) => {
     const response = await axios.get(url, {
       timeout: 10000,
-      headers: { 'User-Agent': 'WebAgent/1.0' }
+      headers: { 'User-Agent': 'WebAgent/1.0' },
     });
     const $ = cheerio.load(response.data);
     return {
       html: response.data,
       title: $('title').text().trim(),
-      status: response.status
+      status: response.status,
     };
   },
   {
     name: 'loadPage',
     description: 'Load a webpage and return its content',
     schema: z.object({
-      url: z.string().url().describe('URL to load')
-    })
+      url: z.string().url().describe('URL to load'),
+    }),
   }
 );
 
@@ -347,8 +351,8 @@ const extractText = tool(
     description: 'Extract text from HTML using a CSS selector',
     schema: z.object({
       html: z.string().describe('HTML content'),
-      selector: z.string().describe('CSS selector')
-    })
+      selector: z.string().describe('CSS selector'),
+    }),
   }
 );
 
@@ -358,15 +362,17 @@ const webScrapingAgent = await createAgent({
   systemPrompt: `You are a web scraping agent. Use tools to:
   1. Load pages with loadPage
   2. Extract content with extractText
-  3. Focus on main content areas like 'main', 'article', '.content'`
+  3. Focus on main content areas like 'main', 'article', '.content'`,
 });
 
 // Usage
 const result = await webScrapingAgent.invoke({
-  messages: [{
-    role: 'user',
-    content: 'Scrape the main content from https://example.com'
-  }]
+  messages: [
+    {
+      role: 'user',
+      content: 'Scrape the main content from https://example.com',
+    },
+  ],
 });
 ```
 
@@ -376,26 +382,23 @@ const result = await webScrapingAgent.invoke({
 import { createAgent, tool } from 'langchain';
 
 // Mock tool for testing
-const mockTool = tool(
-  async ({ input }) => `Mock response for: ${input}`,
-  {
-    name: 'mockTool',
-    description: 'Mock tool for testing',
-    schema: z.object({ input: z.string() })
-  }
-);
+const mockTool = tool(async ({ input }) => `Mock response for: ${input}`, {
+  name: 'mockTool',
+  description: 'Mock tool for testing',
+  schema: z.object({ input: z.string() }),
+});
 
 // Create agent for testing
 const testAgent = await createAgent({
   model: 'openai:gpt-4o-mini',
-  tools: [mockTool]
+  tools: [mockTool],
 });
 
 // Test the agent
 describe('Agent Tests', () => {
   test('should use tool correctly', async () => {
     const result = await testAgent.invoke({
-      messages: [{ role: 'user', content: 'Test input' }]
+      messages: [{ role: 'user', content: 'Test input' }],
     });
 
     expect(result.messages.length).toBeGreaterThan(1);
@@ -424,7 +427,7 @@ const smartAgent = await createAgent({
   systemPrompt: `Choose the right tool based on the user's request:
   - For math: use calculateSum
   - For text analysis: use analyzeText
-  - Explain your tool choice`
+  - Explain your tool choice`,
 });
 ```
 
@@ -438,7 +441,7 @@ const workflowAgent = await createAgent({
   1. Gather data
   2. Process/format data
   3. Analyze results
-  4. Provide final answer`
+  4. Provide final answer`,
 });
 ```
 

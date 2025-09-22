@@ -93,10 +93,12 @@ describeIntegration('StructuredScrapingAgent - Integration Tests', () => {
     it('should handle server errors gracefully', async () => {
       const url = testServer.getPageUrl('error');
 
-      await expect(agent.scrape(url, { timeout: 20000 })).rejects.toMatchObject({
-        type: 'unknown',
-        url,
-      });
+      await expect(agent.scrape(url, { timeout: 20000 })).rejects.toMatchObject(
+        {
+          type: 'unknown',
+          url,
+        }
+      );
     });
   });
 

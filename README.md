@@ -1,125 +1,220 @@
-# LangChainJS Agents
+# LangChain.js 1.0 Agents
 
-A comprehensive collection of proof-of-concept examples for building reliable, type-safe AI agents with LangChain.js 1.0's tool-based patterns and comprehensive testing infrastructure.
+A clean, simple repository for rapid development of LangChain.js 1.0 agents with practical examples and comprehensive documentation.
 
-## 🚀 Overview
-
-This repository provides a scaffold for developing AI agents using LangChain.js 1.0. It demonstrates modern agent patterns including:
-
-- **Tool-Based Agents**: Agents that use specialized tools to interact with content iteratively
-- **Type Safety**: Full TypeScript support with Zod schema validation
-- **Comprehensive Testing**: Unit and integration tests with mocking capabilities
-- **Multiple LLM Providers**: Support for OpenAI and OpenRouter
-- **Production Ready**: Built-in error handling, logging, and deployment patterns
-
-## 📁 Project Structure
-
-```
-├── src/                    # Core agent framework
-│   ├── base-agent.ts      # Base agent class with common functionality
-│   └── index.ts           # Main exports
-├── examples/              # Agent examples and implementations
-│   └── structured-scraping/  # Web scraping agent example
-├── docs/                  # Documentation and guides
-│   ├── getting-started.md          # Quick start guide
-│   ├── langchainjs-1.0-comprehensive-guide.md
-│   ├── langchainjs-1.0-migration.md
-│   └── langchainjs-1.0-structured-extraction.md
-├── tests/                 # Testing infrastructure
-├── mocks/                 # Mock utilities for testing
-├── config/                # Environment and LLM configuration
-└── scripts/               # Development utilities
-```
-
-## 📚 Documentation
-
-- **[Getting Started](docs/getting-started.md)**: Complete guide to building tool-based agents with code examples
-- **[LangChain.js 1.0 Guide](docs/langchainjs-1.0-comprehensive-guide.md)**: Comprehensive examples and patterns
-- **[Migration Guide](docs/langchainjs-1.0-migration.md)**: Migrating from LangChain.js 0.x
-- **[Structured Extraction](docs/langchainjs-1.0-structured-extraction.md)**: Advanced data extraction patterns
-- **[AGENTS.md](AGENTS.md)**: Minimal examples for building LangChain.js 1.0 agents
-
-## 🛠️ Quick Start
-
-### Prerequisites
-
-- Node.js >= 18.0.0
-- npm or yarn
-
-### Installation
+## Quick Start
 
 ```bash
-git clone <repository-url>
+# 1. Clone and setup
+git clone https://github.com/rothnic/langchainjs-agents
 cd langchainjs-agents
 npm install
+
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your OpenRouter API key
+
+# 3. Try the working example
+npm run dev:example https://example.com
 ```
 
-### Environment Setup
+## Core Examples
 
-Create a `.env` file with your API keys:
+### Web Scraping Agent
+
+Clean, self-contained example using LangChain 1.0 patterns:
+
+```typescript
+import { ChatOpenAI } from '@langchain/openai';
+import { createAgent } from 'langchain';
+import { createWebScrapingTools } from './tools.js';
+
+// Configure LLM for OpenRouter (or other providers)
+const llm = new ChatOpenAI({
+  model: 'openai/gpt-4o-mini',
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL, // https://openrouter.ai/api/v1
+    apiKey: process.env.OPENAI_API_KEY, // Your OpenRouter key
+  },
+});
+
+// Create agent with tools
+const agent = await createAgent({
+  llm,
+  tools: createWebScrapingTools(),
+  systemPrompt:
+    'You are a web scraping assistant that extracts structured data.',
+});
+
+// Use the agent
+const result = await agent.invoke({
+  messages: [
+    {
+      role: 'user',
+      content: 'Scrape https://example.com and return structured data',
+    },
+  ],
+});
+```
+
+## Key Features
+
+- **🎯 Simple & Direct**: No abstractions over LangChain 1.0 APIs
+- **📦 Self-Contained**: Each example works independently
+- **🔧 OpenRouter Ready**: Cost-effective LLM access out of the box
+- **✅ Type Safe**: Full TypeScript with Zod validation
+- **🧪 Well Tested**: Unit tests (mocked) + integration tests (real APIs)
+
+## Project Structure
+
+```
+langchainjs-agents/
+├── examples/
+│   └── structured-scraping/     # Working web scraping agent
+│       ├── src/
+│       │   ├── agent.ts         # Core agent logic
+│       │   ├── tools.ts         # Tool definitions
+│       │   ├── schemas.ts       # Zod validation
+│       │   └── index.ts         # CLI interface
+│       └── tests/               # Unit & integration tests
+├── docs/                        # Focused documentation
+│   ├── development-standards.md # Coding approach & gotchas
+│   ├── openrouter-setup.md     # LLM configuration guide
+│   └── testing-guide.md        # Testing patterns
+└── mocks/                       # Test utilities
+```
+
+## Available Commands
 
 ```bash
-# For OpenRouter (recommended)
-OPENAI_API_KEY=your_openrouter_api_key
+# Development
+npm run dev:example <url>        # Try web scraping example
+npm run typecheck               # TypeScript validation
+npm run lint                    # Code quality checks
+npm run format                  # Apply code formatting
+
+# Testing
+npm run test:unit              # Fast tests with mocks
+npm run test:integration       # Real API tests (requires setup)
+npm run test                   # All tests
+```
+
+## Environment Configuration
+
+The repository supports multiple LLM providers:
+
+### OpenRouter (Recommended)
+
+```bash
 OPENAI_BASE_URL=https://openrouter.ai/api/v1
-
-# For direct OpenAI
-OPENAI_API_KEY=your_openai_api_key
+OPENAI_API_KEY=sk-or-v1-your-openrouter-key
+DEFAULT_MODEL=openai/gpt-4o-mini
 ```
 
-### Run Tests
+### GitHub Models (Free for Pro users)
 
 ```bash
-# Run all tests
-npm test
-
-# Run unit tests only
-npm run test:unit
-
-# Run integration tests (requires real APIs)
-npm run test:integration
+OPENAI_BASE_URL=https://models.inference.ai.azure.com
+GITHUB_TOKEN=your-github-token
+DEFAULT_MODEL=gpt-4o-mini
 ```
 
-### Build and Development
+### Direct OpenAI
 
 ```bash
-# Build the project
-npm run build
-
-# Run in development mode
-npm run dev
-
-# Lint and format code
-npm run lint
-npm run format
+OPENAI_API_KEY=sk-your-openai-key
+DEFAULT_MODEL=gpt-4o-mini
 ```
 
-## 🤖 Agent Examples
+## Critical Development Gotchas
 
-### Structured Web Scraping Agent
+### ⚠️ LLM Initialization for OpenRouter
 
-The included example demonstrates a tool-based agent that can extract structured data from web pages. See the [Getting Started guide](docs/getting-started.md) for detailed code examples and implementation.
+Must pass explicit LLM instance to `createAgent`:
 
-### Base Agent Framework
+```typescript
+// ✅ Correct
+const llm = new ChatOpenAI({
+  model: 'openai/gpt-4o-mini',
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+    apiKey: process.env.OPENAI_API_KEY,
+  },
+});
 
-The repository includes a `BaseAgent` class providing common functionality for building custom agents. See the [Getting Started guide](docs/getting-started.md) for usage examples.
+const agent = await createAgent({ llm, tools });
 
-## 🧪 Testing
+// ❌ Wrong - won't use OpenRouter
+const agent = await createAgent({
+  model: 'gpt-4o-mini', // String model doesn't support custom endpoints
+  tools,
+});
+```
 
-Comprehensive testing infrastructure with mocks and fixtures. See the [Getting Started guide](docs/getting-started.md) for testing examples and patterns.
+### ⚠️ Integration Test Timeouts
 
-## 🔧 Configuration
+Real API calls need sufficient time:
 
-Flexible configuration for different environments and LLM providers. See the [Getting Started guide](docs/getting-started.md) for configuration examples.
+```typescript
+it('should scrape webpage', async () => {
+  const result = await agent.scrape('https://example.com');
+  expect(result.title).toBeDefined();
+}, 60000); // 60 second timeout for real LLM calls
+```
 
-## 🤝 Contributing
+## Documentation
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+- **[Development Standards](./docs/development-standards.md)** - Coding approach, gotchas, and best practices
+- **[OpenRouter Setup](./docs/openrouter-setup.md)** - LLM provider configuration
+- **[Testing Guide](./docs/testing-guide.md)** - Unit and integration testing patterns
+- **[Project Structure](./docs/project-structure.md)** - File organization principles
 
-## 📄 License
+## Contributing
 
-MIT License - see [LICENSE](LICENSE) file for details.
+1. **Read [Development Standards](./docs/development-standards.md)** for coding guidelines
+2. **Run validation before committing**:
+   ```bash
+   npm run typecheck && npm run lint && npm run test:unit && npm run build
+   ```
+3. **Keep examples simple** - No abstractions over LangChain APIs
+4. **Make it self-contained** - Each example should work independently
+
+## Examples in Action
+
+### Web Scraping with Validation
+
+```typescript
+import { StructuredScrapingAgent } from './examples/structured-scraping/src/agent.js';
+
+const agent = new StructuredScrapingAgent();
+const data = await agent.scrape('https://blog.example.com');
+
+console.log(`Title: ${data.title}`);
+console.log(`Headings: ${data.headings.length}`);
+console.log(`Word count: ${data.metadata.wordCount}`);
+```
+
+### Custom Tool Creation
+
+```typescript
+import { tool } from 'langchain';
+import { z } from 'zod';
+
+const customTool = tool(async ({ input }) => `Processed: ${input}`, {
+  name: 'processTool',
+  description: 'Process text input',
+  schema: z.object({
+    input: z.string().describe('Text to process'),
+  }),
+});
+```
+
+## Why This Approach?
+
+- **No Complex Abstractions**: Direct use of LangChain 1.0 APIs
+- **Self-Contained Examples**: Copy and modify for your needs
+- **Clear Patterns**: Established best practices for common tasks
+- **Cost Effective**: OpenRouter integration for affordable LLM access
+- **Production Ready**: Type safety, error handling, comprehensive testing
+
+Start building your LangChain.js agents with clean, simple patterns that scale!

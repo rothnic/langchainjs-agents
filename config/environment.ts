@@ -10,7 +10,6 @@ const envSchema = z.object({
     .enum(['development', 'production', 'test'])
     .default('development'),
   OPENAI_API_KEY: z.string().optional(),
-  GITHUB_TOKEN: z.string().optional(),
   LANGCHAIN_API_KEY: z.string().optional(),
   LANGCHAIN_TRACING_V2: z
     .string()
@@ -20,7 +19,7 @@ const envSchema = z.object({
     .string()
     .transform((val) => val === 'true')
     .default('false'),
-  LLM_PROVIDER: z.enum(['openai', 'github-models']).default('github-models'),
+  LLM_PROVIDER: z.enum(['openai']).default('openai'),
 });
 
 export type Environment = z.infer<typeof envSchema>;
@@ -41,9 +40,5 @@ export const config = {
   },
   openai: {
     apiKey: env.OPENAI_API_KEY,
-  },
-  github: {
-    token: env.GITHUB_TOKEN,
-    modelsBaseUrl: 'https://models.github.ai/inference',
   },
 } as const;

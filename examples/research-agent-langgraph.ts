@@ -16,7 +16,6 @@ import { StateGraph, Annotation } from '@langchain/langgraph';
 import { ToolNode, tool } from 'langchain';
 import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod';
-import { LLMFactory } from '../config/llm-factory.js';
 
 // Define research state schema
 const ResearchState = Annotation.Root({
@@ -115,8 +114,8 @@ export class ResearchAgent {
   private llm: ChatOpenAI;
 
   constructor() {
-    this.llm = LLMFactory.createLLM({
-      model: 'openai/gpt-4o-mini',
+    this.llm = new ChatOpenAI({
+      model: 'gpt-4o-mini',
       temperature: 0.1,
     });
 

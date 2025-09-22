@@ -1,41 +1,41 @@
 #!/usr/bin/env node
 
 import { StructuredScrapingAgent } from './agent.js';
-import { config } from '../../../config/environment.js';
 
 /**
- * Example usage of the Structured Scraping Agent
+ * Example usage of the Structured Scraping Agent with LangChain.js 1.0
+ *
+ * This example demonstrates structured data extraction using the withStructuredOutput method,
+ * which provides reliable, schema-validated extraction from web content.
  */
 async function main() {
   const url = process.argv[2] || 'https://example.com';
 
-  console.log('🚀 Starting Structured Web Scraping Agent...');
+  console.log('🚀 Starting Structured Data Extraction Agent...');
   console.log(`📄 Target URL: ${url}`);
-  console.log(
-    `🔧 Environment: ${config.isDevelopment ? 'Development' : config.isProduction ? 'Production' : 'Test'}`
-  );
-  console.log(`🤖 Using real APIs: ${config.useRealApis}`);
   console.log('---');
 
   try {
+    // Create agent with structured extraction capabilities
     const agent = new StructuredScrapingAgent();
 
-    console.log('⏳ Scraping and structuring content...');
+    console.log('⏳ Extracting structured data...');
     const startTime = Date.now();
 
+    // Extract structured data using LangChain.js 1.0 withStructuredOutput
     const result = await agent.scrape(url, {
       timeout: 15000,
-      userAgent: 'LangChainJS-StructuredScraper/1.0',
+      userAgent: 'LangChainJS-StructuredExtractor/1.0',
     });
 
     const duration = Date.now() - startTime;
 
-    console.log('✅ Scraping completed successfully!');
+    console.log('✅ Structured extraction completed successfully!');
     console.log(`⏱️  Duration: ${duration}ms`);
     console.log('---');
 
     // Display structured results
-    console.log('📊 STRUCTURED RESULTS:');
+    console.log('📊 STRUCTURED EXTRACTION RESULTS:');
     console.log('');
 
     console.log(`📋 Title: ${result.title}`);
@@ -117,8 +117,11 @@ async function main() {
       console.log('📄 JSON OUTPUT:');
       console.log(JSON.stringify(result, null, 2));
     }
+
+    console.log('');
+    console.log('✨ Structured extraction powered by LangChain.js 1.0 withStructuredOutput');
   } catch (error) {
-    console.error('❌ Scraping failed:');
+    console.error('❌ Extraction failed:');
     console.error(error);
     process.exit(1);
   }

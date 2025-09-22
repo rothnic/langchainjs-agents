@@ -34,7 +34,10 @@ export class StructuredScrapingAgent {
   /**
    * Scrape a webpage and return structured data
    */
-  async scrape(url: string, config?: Partial<ScrapingConfig>): Promise<ScrapedData> {
+  async scrape(
+    url: string,
+    config?: Partial<ScrapingConfig>
+  ): Promise<ScrapedData> {
     try {
       console.log(`🔍 Starting scraping process for: ${url}`);
 

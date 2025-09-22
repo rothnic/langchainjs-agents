@@ -19,6 +19,7 @@
     "lint:fix": "eslint . --ext .ts,.js --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "prepare": "husky install",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "scaffold": "node scripts/scaffold-agent.js",
@@ -53,6 +54,8 @@
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.0.0",
     "msw": "^2.0.11",
     "nock": "^13.4.0",
     "prettier": "^3.1.1",
@@ -62,5 +65,14 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

@@ -1,8 +1,30 @@
 # Development Workflow & CI Requirements
 
+## Pre-commit Hooks (Automatic Quality Assurance)
+
+This repository uses [Husky](https://typicode.github.io/husky/) and [lint-staged](https://github.com/okonet/lint-staged) to **automatically prevent formatting and linting issues**:
+
+- **Automatic setup**: Pre-commit hooks install when running `npm install`
+- **Code formatting**: Prettier formats all staged files before commit
+- **Linting**: ESLint checks and fixes TypeScript/JavaScript issues
+- **Selective processing**: Only staged files are processed for efficiency
+
+This **eliminates CI failures** by ensuring all committed code follows formatting and quality standards automatically.
+
+### Manual Quality Checks
+
+If you need to run quality checks manually:
+
+```bash
+npm run format        # Format all files
+npm run format:check  # Check formatting without changes
+npm run lint          # Lint all files
+npm run lint:fix      # Fix linting issues automatically
+```
+
 ## Pre-Commit Validation Requirements
 
-**CRITICAL**: Before committing any changes, you MUST run all CI commands locally to ensure they pass. This prevents CI failures and reduces development friction.
+**CRITICAL**: Before committing any changes, the pre-commit hooks will automatically run. If you bypass them or need to run checks manually, ensure ALL pass:
 
 ### Required Pre-Commit Commands
 

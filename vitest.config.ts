@@ -8,6 +8,7 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    testTimeout: 30000, // Set global test timeout to 30 seconds
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

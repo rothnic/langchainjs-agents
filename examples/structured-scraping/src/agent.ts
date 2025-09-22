@@ -395,10 +395,17 @@ Please return enhanced structured data with improved metadata, better content ca
    * Categorize errors for better error handling
    */
   private categorizeError(error: any): ScrapingError['type'] {
+    // Network errors
     if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
       return 'network';
     }
-    if (error.code === 'ETIMEDOUT') {
+    // Timeout errors (Node.js, axios)
+    if (
+      error.code === 'ETIMEDOUT' ||
+      error.code === 'ECONNABORTED' ||
+      error.message?.toLowerCase().includes('timeout') ||
+      error.message?.toLowerCase().includes('timed out')
+    ) {
       return 'timeout';
     }
     if (error instanceof z.ZodError) {

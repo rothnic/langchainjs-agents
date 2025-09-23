@@ -112,8 +112,8 @@ jobs:
       - name: Check build artifacts
         run: |
           ls -la dist/
-          test -f dist/index.js
-          test -f dist/index.d.ts
+          test -f dist/src/index.js
+          test -f dist/src/index.d.ts
 
   integration-tests:
     name: Integration Tests (OpenRouter)
